@@ -1,9 +1,10 @@
+import { User } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import config from '../../config';
 import { Iusers } from './user.interface';
 import bcrypt from 'bcrypt';
 
-const createUserIntoDb = async (data: Iusers) => {
+const createUserIntoDb = async (data: Iusers): Promise<User> => {
   const hashedPassword: string = await bcrypt.hash(
     data.password,
     Number(config.bcrypt.bcryptSaltRounds),
@@ -26,7 +27,10 @@ const createUserIntoDb = async (data: Iusers) => {
     });
     return creataedUserDetails;
   });
-  return result;
+  return {
+    ...result.user,
+    ...result,
+  };
 };
 
 export const userService = {
