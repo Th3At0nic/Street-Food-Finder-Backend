@@ -15,13 +15,13 @@ const auth = (...role: string[]) => {
       if (!token) {
         throw new AppError(status.UNAUTHORIZED, 'you are not authorized');
       }
-      const varifiedUser = verifyToken(
+      const verifiedUser = verifyToken(
         token as string,
         config.jwt.jwtAccessToken as string,
       );
 
-      req.user = varifiedUser;
-      if (role.length && !role.includes(varifiedUser.role)) {
+      req.user = verifiedUser;
+      if (role.length && !role.includes(verifiedUser.role)) {
         throw new AppError(status.FORBIDDEN, 'you are not authorized');
       }
       next();
