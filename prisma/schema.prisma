@@ -23,6 +23,14 @@ model User {
   createdAt           DateTime     @default(now()) @map("created_at")
   updatedAt           DateTime     @updatedAt @map("updated_at")
 
+  // relations
+  UserDetails       UserDetail?
+  Payments          Payment[]
+  Subscriptions     Subscription[]
+  UserSubscriptions UserSubscription[]
+  authoredPosts     Post[]             @relation(name: "author")
+  approvedPosts     Post[]             @relation(name: "approved_by_admin")
+
   @@map("user")
 }
 
@@ -48,9 +56,114 @@ enum PostTypes {
   @@map("post_type")
 }
 
+enum PostStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum VoteTypes {
   UPVOTE
   DOWNVOTE
 
   @@map("vote_types")
+}
+
+model UserDetail {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  profilePhoto  String?  @map("profile_photo")
+  contactNumber String?  @map("contact_number")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_details")
+}
+
+model Payment {
+  pmId      String   @id @default(uuid()) @map("pm_id")
+  userId    String   @map("user_id")
+  paymentId String   @unique @map("payment_id")
+  amount    Decimal
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // relation
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("payments")
+}
+
+model Subscription {
+  sId       String   @id @default(uuid()) @map("s_id")
+  name      String
+  fee       Decimal
+  duration  Int      @default(30) // duration in days
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+
+  @@map("subscriptions")
+}
+
+model UserSubscription {
+  id             String   @id @default(uuid())
+  subscriptionId String   @map("subscription_id")
+  userId         String   @map("user_id")
+  expiringAt     DateTime @map("expiring_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // relations
+  User User? @relation(fields: [userId], references: [id])
+
+  @@map("user_subscriptions")
+}
+
+model PostCategory {
+  catId     String   @id @default(uuid()) @map("cat_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // relations
+  Posts Post[]
+
+  @@map("post_categories")
+}
+
+model Post {
+  pId             String     @id @default(uuid()) @map("p_id")
+  categoryId      String     @map("category_id")
+  authorId        String     @map("author_id")
+  pType           PostTypes  @map("p_type")
+  status          PostStatus @default(PENDING)
+  title           String
+  description     String
+  priceRangeStart Decimal    @map("price_range_start")
+  priceRangeEnd   Decimal    @map("price_range_end")
+  location        String
+  approvedBy      String     @map("approved_by")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  //relations
+  category        PostCategory @relation(fields: [categoryId], references: [catId])
+  approvedByAdmin User         @relation(name: "approved_by_admin", fields: [approvedBy], references: [id])
+  author          User         @relation(name: "author", fields: [authorId], references: [id])
+
+  @@map("posts")
+}
+
+model Votes {
+  vId       String    @id @default(uuid()) @map("v_id")
+  postId    String    @map("post_id")
+  voterId   String    @map("voter_id")
+  vType     VoteTypes @map("v_type")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 }
