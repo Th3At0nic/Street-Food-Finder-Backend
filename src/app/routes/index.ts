@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { HomeRoutes } from '../modules/home/home.route';
 import { UserRoutes } from '../modules/User/user.route';
 import { PostCategoryRoutes } from '../modules/postCategory/postCategory.route';
+import { authRoutes } from '../modules/auth/auth.routes';
 
 const router = Router();
 
@@ -11,6 +12,10 @@ const moduleRoutes = [
   {
     path: '/',
     route: HomeRoutes,
+  },
+  {
+    path: `${apiPrefix}/auth`,
+    route: authRoutes,
   },
   {
     path: `${apiPrefix}/users`,
