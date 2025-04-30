@@ -12,20 +12,21 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'log in sucessfully',
+    message: 'Logged in successfully',
     data: {
       accessToken: result.accessToken,
       needPasswordChange: result.needsPasswordChange,
     },
   });
 });
+
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken } = req.cookies;
   const result = await authService.refreshToken(refreshToken);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Token refreshed successfully and logedin in successfully',
+    message: 'Token refreshed and logged in successfully',
     data: result,
   });
 });

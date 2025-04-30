@@ -1,10 +1,9 @@
 import { User } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import config from '../../config';
-import { Iusers } from './user.interface';
 import bcrypt from 'bcrypt';
 
-const createUserIntoDb = async (data: Iusers): Promise<User> => {
+const createUserIntoDb = async (data: User): Promise<User> => {
   const hashedPassword: string = await bcrypt.hash(
     data.password,
     Number(config.bcrypt.bcryptSaltRounds),
@@ -17,7 +16,7 @@ const createUserIntoDb = async (data: Iusers): Promise<User> => {
     const userData = await tx.user.create({
       data: userPayload,
     });
-    const creataedUserDetails = await tx.userDetail.create({
+    const createdUserDetails = await tx.userDetail.create({
       data: {
         userId: userData.id,
       },
@@ -25,7 +24,7 @@ const createUserIntoDb = async (data: Iusers): Promise<User> => {
         user: true,
       },
     });
-    return creataedUserDetails;
+    return createdUserDetails;
   });
   return {
     ...result.user,
