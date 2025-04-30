@@ -13,32 +13,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
-  id                    String     @id @default(uuid())
-  email                 String     @unique
-  role                  userRole   @default(USER)
-  password              String
-  needs_password_change Boolean    @default(false)
-  status                userStatus @default(ACTIVE)
-  created_at            DateTime   @default(now())
-  updated_at            DateTime   @updatedAt  
+model User {
+  id                  String       @id @default(uuid())
+  email               String       @unique
+  role                UserRole     @default(USER)
+  password            String
+  needsPasswordChange Boolean      @default(false) @map("needs_password_change")
+  status              UserStatuses @default(ACTIVE)
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @updatedAt @map("updated_at")
+
+  @@map("user")
 }
 
-enum userStatus {
+enum UserStatuses {
   ACTIVE
   BLOCKED
+
+  @@map("user_status")
 }
 
-enum userRole {
+enum UserRole {
   USER
   PREMIUM_USER
   ADMIN
+
+  @@map("user_role")
 }
-enum postType {
-  NORMAL 
-  PREMIUM 
+
+enum PostTypes {
+  NORMAL
+  PREMIUM
+
+  @@map("post_type")
 }
-enum voteType {
-  UPVOTE 
-  DOWNVOTE  
-} 
+
+enum VoteTypes {
+  UPVOTE
+  DOWNVOTE
+
+  @@map("vote_types")
+}
