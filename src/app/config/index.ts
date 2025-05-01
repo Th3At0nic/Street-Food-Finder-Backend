@@ -23,4 +23,13 @@ export default {
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
+  resetPasswordCredential: {
+    resetPasswordSecret: process.env.RESET_PASSWORD_TOKEN,
+    resetTokenExpireIn: process.env.RESET_EXPIRES_IN,
+    resetPasswordLink: process.env.RESET_PASSWORD_LINK,
+  },
+  nodeMailer: {
+    GooglePassword: process.env.SEND_MAIL_PASSWORD,
+    GoogleEmail: process.env.SEND_MAIL_EMAIL,
+  },
 };
