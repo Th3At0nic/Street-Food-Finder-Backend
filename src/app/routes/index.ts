@@ -3,6 +3,7 @@ import { HomeRoutes } from '../modules/home/home.route';
 import { UserRoutes } from '../modules/User/user.route';
 import { PostCategoryRoutes } from '../modules/postCategory/postCategory.route';
 import { authRoutes } from '../modules/auth/auth.routes';
+import { PostRoutes } from '../modules/post/post.route';
 
 const router = Router();
 
@@ -24,6 +25,10 @@ const moduleRoutes = [
   {
     path: `${apiPrefix}/post-categories`,
     route: PostCategoryRoutes,
+  },
+  {
+    path: `${apiPrefix}/posts`,
+    route: PostRoutes,
   },
 ];
 
