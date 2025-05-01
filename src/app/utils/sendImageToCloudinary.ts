@@ -35,3 +35,6 @@ export const sendImageToCloudinary = async (
     throw error;
   }
 };
+
+//this code will not use any local folder to first keep the images and then upload and then delete, which doesn't work in vercel deploy
+//so gotta use memoryStorage instead diskStorage, this will work on both deployment and localhost
