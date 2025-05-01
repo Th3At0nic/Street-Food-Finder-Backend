@@ -7,6 +7,7 @@ import { SubscriptionRoutes } from '../modules/subscriptionPlan/subscriptionPlan
 import { CommentRoutes } from '../modules/comment/comment.route';
 import { PostRoutes } from '../modules/post/post.route';
 import { PostRatingRoutes } from '../modules/postRating/postRating.route';
+import { VotingRoutes } from '../modules/vote/vote.route';
 
 const router = Router();
 
@@ -44,6 +45,10 @@ const moduleRoutes = [
   {
     path: `${apiPrefix}/post-ratings`,
     route: PostRatingRoutes,
+  },
+  {
+    path: `${apiPrefix}/votes`,
+    route: VotingRoutes,
   },
 ];
 

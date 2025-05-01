@@ -3,7 +3,7 @@ import { QueryBuilder } from '../../builder/QueryBuilder';
 import { JwtPayload } from 'jsonwebtoken';
 import {
   checkIfPostExist,
-  checkIfPostRatingsExist,
+  checkIfVoteExist,
   getUserIfExistsByEmail,
 } from '../../utils/checkIfExists';
 import AppError from '../../error/AppError';
@@ -51,7 +51,7 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getOneFromDB = async (prId: string): Promise<PostRatings | null> => {
-  await checkIfPostRatingsExist(prId);
+  await checkIfVoteExist(prId);
   const result = await prisma.postRatings.findFirst({
     where: { prId },
   });
@@ -62,7 +62,7 @@ const updateOneIntoDB = async (
   prId: string,
   payload: Pick<PostRatings, 'rating'>,
 ): Promise<PostRatings | null> => {
-  await checkIfPostRatingsExist(prId);
+  await checkIfVoteExist(prId);
   const result = await prisma.postRatings.update({
     where: { prId },
     data: payload,
@@ -71,7 +71,7 @@ const updateOneIntoDB = async (
 };
 
 const deleteOneFromDB = async (prId: string): Promise<PostRatings | void> => {
-  await checkIfPostRatingsExist(prId);
+  await checkIfVoteExist(prId);
   await prisma.postRatings.delete({
     where: { prId },
   });
