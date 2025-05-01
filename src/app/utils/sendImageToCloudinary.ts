@@ -2,55 +2,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { v2 as cloudinary } from 'cloudinary';
 import multer from 'multer';
-import fs from 'fs';
 import config from '../config';
 
-// Function to delete file after successful upload
-const deleteFile = (filePath: string) => {
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.error('Failed to delete file:', err);
-    } else {
-      console.log('File deleted successfully');
-    }
-  });
-};
-
-// Configuration
+// Cloudinary configuration
 cloudinary.config({
   cloud_name: config.cloudinary.cloudName,
   api_key: config.cloudinary.apiKey,
-  api_secret: config.cloudinary.secretKey,
+  api_secret: config.cloudinary.apiSecret,
 });
 
+// Multer: store files in memory (RAM)
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });
+
+// Function to upload a buffer to Cloudinary
 export const sendImageToCloudinary = async (
-  imgPath: string,
-  imgName: string,
-) => {
-  // Upload an image
-  const uploadResult = await cloudinary.uploader
-    .upload(imgPath, {
-      public_id: imgName,
-    })
-    .catch((error) => {
-      console.log('uploadResult err: ', error);
+  fileBuffer: Buffer,
+  fileName: string,
+): Promise<any> => {
+  try {
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream({ public_id: fileName }, (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        })
+        .end(fileBuffer);
     });
 
-  if (uploadResult) {
-    deleteFile(imgPath);
+    return uploadResult;
+  } catch (error) {
+    console.log('Cloudinary upload error:', error);
+    throw error;
   }
-
-  return uploadResult;
 };
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, process.cwd() + '/uploads');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix);
-  },
-});
-
-export const upload = multer({ storage: storage });
+//this code will not use any local folder to first keep the images and then upload and then delete, which doesn't work in vercel deploy
+//so gotta use memoryStorage instead diskStorage, this will work on both deployment and localhost
