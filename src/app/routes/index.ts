@@ -3,6 +3,7 @@ import { HomeRoutes } from '../modules/home/home.route';
 import { UserRoutes } from '../modules/User/user.route';
 import { PostCategoryRoutes } from '../modules/postCategory/postCategory.route';
 import { authRoutes } from '../modules/auth/auth.routes';
+import { SubscriptionRoutes } from '../modules/subscription/subscription.route';
 
 const router = Router();
 
@@ -25,6 +26,11 @@ const moduleRoutes = [
     path: `${apiPrefix}/post-categories`,
     route: PostCategoryRoutes,
   },
+  {
+    path: `${apiPrefix}/subscription`,
+    route: SubscriptionRoutes
+  }
+
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
