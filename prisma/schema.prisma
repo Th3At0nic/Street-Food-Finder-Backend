@@ -165,8 +165,22 @@ model Post {
   votes           Votes[]
   comments        Comments[]
   postRatings     PostRatings[] @relation("post_postRatings_relation")
+  postImages      PostImages[]
 
   @@map("posts")
+}
+
+model PostImages {
+  imId      String   @id @default(uuid()) @map("im_id")
+  postId    String
+  file_path String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // relations
+  post Post @relation(fields: [postId], references: [pId])
+
+  @@map("post_images")
 }
 
 model Votes {
