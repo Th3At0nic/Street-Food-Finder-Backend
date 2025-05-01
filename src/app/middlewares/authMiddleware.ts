@@ -6,6 +6,7 @@ import verifyToken from '../utils/verifyToken';
 
 const auth = (...role: string[]) => {
   return async (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     req: Request & { user?: any },
     res: Response,
     next: NextFunction,
@@ -15,8 +16,9 @@ const auth = (...role: string[]) => {
       if (!token) {
         throw new AppError(status.UNAUTHORIZED, 'you are not authorized');
       }
+      const actualToken = token.split(' ')[1];
       const verifiedUser = verifyToken(
-        token as string,
+        actualToken as string,
         config.jwt.jwtAccessToken as string,
       );
 

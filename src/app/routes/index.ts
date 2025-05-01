@@ -5,6 +5,7 @@ import { PostCategoryRoutes } from '../modules/postCategory/postCategory.route';
 import { authRoutes } from '../modules/auth/auth.routes';
 import { SubscriptionRoutes } from '../modules/subscription/subscription.route';
 import { CommentRoutes } from '../modules/comment/comment.route';
+import { PostRoutes } from '../modules/post/post.route';
 
 const router = Router();
 
@@ -28,6 +29,10 @@ const moduleRoutes = [
     route: PostCategoryRoutes,
   },
   {
+    path: `${apiPrefix}/posts`,
+    route: PostRoutes,
+  },
+  {
     path: `${apiPrefix}/subscription`,
     route: SubscriptionRoutes
   },
@@ -35,7 +40,6 @@ const moduleRoutes = [
     path: `${apiPrefix}/comment`,
     route: CommentRoutes
   },
-
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
