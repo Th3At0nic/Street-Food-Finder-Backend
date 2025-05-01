@@ -1,33 +1,20 @@
-import { Post, PrismaClient, User } from '@prisma/client';
+import { Post, PrismaClient } from '@prisma/client';
 import { QueryBuilder } from '../../builder/QueryBuilder';
-import NotFoundError from '../../error/NotFoundError';
 import { JwtPayload } from 'jsonwebtoken';
 import AppError from '../../error/AppError';
 import httpStatus from 'http-status';
+import {
+  checkIfPostExist,
+  getUserIfExistsByEmail,
+} from '../../utils/checkIfExists';
 
 const prisma = new PrismaClient();
-
-const checkIfPostExist = async (pId: string): Promise<void> => {
-  if (
-    !(await prisma.post.count({
-      where: { pId },
-    }))
-  ) {
-    throw new NotFoundError('Post category');
-  }
-};
-
-const getUserIfExists = async (email: string): Promise<User | null> => {
-  return await prisma.user.findFirst({
-    where: { email },
-  });
-};
 
 const createOneIntoDB = async (
   payload: Post,
   userDecoded: JwtPayload,
 ): Promise<Post> => {
-  const user = await getUserIfExists(userDecoded.email);
+  const user = await getUserIfExistsByEmail(userDecoded.email);
   if (!user) {
     throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized');
   }
@@ -69,7 +56,7 @@ const getOneFromDB = async (pId: string): Promise<Post | null> => {
           id: true,
           role: true,
           status: true,
-          UserDetails: {
+          userDetails: {
             select: {
               name: true,
               profilePhoto: true,
@@ -85,7 +72,7 @@ const getOneFromDB = async (pId: string): Promise<Post | null> => {
       },
       approvedByAdmin: true,
       votes: true,
-      Comments: true,
+      comments: true,
     },
   });
   return result;

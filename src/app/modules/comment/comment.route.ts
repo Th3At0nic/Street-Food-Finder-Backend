@@ -4,7 +4,13 @@ import { CommentControllers } from './comment.controller';
 
 import auth from '../../middlewares/authMiddleware';
 import { UserRole } from '@prisma/client';
-import { createCommentSchema, deleteCommentSchema, getAllCommentsSchema, getCommentSchema, updateCommentSchema } from './comment.vallidation';
+import {
+  createCommentSchema,
+  deleteCommentSchema,
+  getAllCommentsSchema,
+  getCommentSchema,
+  updateCommentSchema,
+} from './comment.vallidation';
 
 const router = express.Router();
 
@@ -29,11 +35,7 @@ router.delete(
   CommentControllers.deleteOne,
 );
 
-router.get(
-  '/',
-  validateRequest(getCommentSchema),
-  CommentControllers.getOne,
-);
+router.get('/', validateRequest(getCommentSchema), CommentControllers.getOne);
 
 router.get(
   '/all',

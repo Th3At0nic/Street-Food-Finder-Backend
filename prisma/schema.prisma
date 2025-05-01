@@ -23,14 +23,14 @@ model User {
   updatedAt DateTime     @updatedAt @map("updated_at")
 
   // relations
-  UserDetails       UserDetail?
+  userDetails       UserDetail?
   Payments          Payment[]
   Subscriptions     Subscription[]
   UserSubscriptions UserSubscription[]
   authoredPosts     Post[]             @relation(name: "author")
   approvedPosts     Post[]             @relation(name: "approved_by_admin")
   Votes             Votes[]            @relation(name: "post_votes")
-  Comments          Comments[]         @relation(name: "post_comments")
+  comments          Comments[]         @relation(name: "post_comments")
 
   @@map("user")
 }
@@ -106,7 +106,7 @@ model Subscription {
   duration  Int      @default(30) // duration in days
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  User      User?    @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
   userId    String?
 
   @@map("subscriptions")
@@ -121,7 +121,7 @@ model UserSubscription {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   // relations
-  User User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("user_subscriptions")
 }
@@ -133,7 +133,7 @@ model PostCategory {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // relations
-  Posts Post[]
+  posts Post[]
 
   @@map("post_categories")
 }
@@ -154,11 +154,12 @@ model Post {
   updatedAt       DateTime   @updatedAt @map("updated_at")
 
   //relations
-  category        PostCategory @relation(fields: [categoryId], references: [catId])
-  approvedByAdmin User?        @relation(name: "approved_by_admin", fields: [approvedBy], references: [id])
-  author          User         @relation(name: "author", fields: [authorId], references: [id])
+  category        PostCategory  @relation(fields: [categoryId], references: [catId])
+  approvedByAdmin User?         @relation(name: "approved_by_admin", fields: [approvedBy], references: [id])
+  author          User          @relation(name: "author", fields: [authorId], references: [id])
   votes           Votes[]
-  Comments        Comments[]
+  comments        Comments[]
+  postRatings     PostRatings[] @relation("post_postRatings_relation")
 
   @@map("posts")
 }
@@ -176,6 +177,20 @@ model Votes {
   voter User @relation(name: "post_votes", fields: [voterId], references: [id])
 
   @@map("votes")
+}
+
+model PostRatings {
+  prId      String   @id @default(uuid()) @map("pr_id")
+  postId    String   @map("post_id")
+  ratedBy   String   @map("rated_by")
+  rating    Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // relations
+  post Post @relation("post_postRatings_relation", fields: [postId], references: [pId])
+
+  @@map("post_ratings")
 }
 
 model Comments {

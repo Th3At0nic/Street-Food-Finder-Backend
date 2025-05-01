@@ -6,6 +6,7 @@ import { authRoutes } from '../modules/auth/auth.routes';
 import { SubscriptionRoutes } from '../modules/subscription/subscription.route';
 import { CommentRoutes } from '../modules/comment/comment.route';
 import { PostRoutes } from '../modules/post/post.route';
+import { PostRatingRoutes } from '../modules/postRating/postRating.route';
 
 const router = Router();
 
@@ -34,11 +35,15 @@ const moduleRoutes = [
   },
   {
     path: `${apiPrefix}/subscription`,
-    route: SubscriptionRoutes
+    route: SubscriptionRoutes,
   },
   {
     path: `${apiPrefix}/comment`,
-    route: CommentRoutes
+    route: CommentRoutes,
+  },
+  {
+    path: `${apiPrefix}/post-ratings`,
+    route: PostRatingRoutes,
   },
 ];
 

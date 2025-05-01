@@ -4,7 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 // import { CommentServices } from './comment.service'; todo
 
 const createOne = catchAsync(async (req, res) => {
-//   const result = await CommentServices.createOneIntoDB(req.body); todo
+  //   const result = await CommentServices.createOneIntoDB(req.body); todo
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
@@ -14,7 +14,7 @@ const createOne = catchAsync(async (req, res) => {
 });
 
 const updateOne = catchAsync(async (req, res) => {
-//   const result = await CommentServices.updateOneIntoDB(req.body.commentId, req.body.comment); todo
+  //   const result = await CommentServices.updateOneIntoDB(req.body.commentId, req.body.comment); todo
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -24,7 +24,7 @@ const updateOne = catchAsync(async (req, res) => {
 });
 
 const deleteOne = catchAsync(async (req, res) => {
-//   const result = await CommentServices.deleteOneFromDB(req.body.commentId); todo
+  //   const result = await CommentServices.deleteOneFromDB(req.body.commentId); todo
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -34,7 +34,7 @@ const deleteOne = catchAsync(async (req, res) => {
 });
 
 const getOne = catchAsync(async (req, res) => {
-//   const result = await CommentServices.getOneFromDB(req.query.postId as string, req.query.commenterId as string); todo`
+  //   const result = await CommentServices.getOneFromDB(req.query.postId as string, req.query.commenterId as string); todo`
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -44,7 +44,7 @@ const getOne = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-//   const result = await CommentServices.getAllFromDB(req.query); todo
+  //   const result = await CommentServices.getAllFromDB(req.query); todo
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -61,5 +61,3 @@ export const CommentControllers = {
   getAll,
 };
 export default CommentControllers;
-
-
