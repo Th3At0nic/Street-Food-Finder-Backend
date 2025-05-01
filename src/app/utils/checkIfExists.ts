@@ -30,3 +30,15 @@ export const checkIfPostRatingsExist = async (prId: string): Promise<void> => {
     throw new NotFoundError('Post rating');
   }
 };
+
+export const checkIfSubscriptionPlanExist = async (
+  spId: string,
+): Promise<void> => {
+  if (
+    !(await prisma.subscriptionPlans.count({
+      where: { spId },
+    }))
+  ) {
+    throw new NotFoundError('Subscription plan');
+  }
+};

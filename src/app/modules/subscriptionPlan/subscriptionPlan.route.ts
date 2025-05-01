@@ -1,19 +1,39 @@
 import express from 'express';
 import validateRequest from '../../middlewares/validateRequest';
-import { SubscriptionControllers } from './subscription.controller';
+import { SubscriptionControllers } from './subscriptionPlan.controller';
 
 import auth from '../../middlewares/authMiddleware';
 import { UserRole } from '@prisma/client';
-import { createSubscriptionSchema, userSubscribeSchema } from './subscription.vallidation';
+import {
+  updateSubscriptionSchema,
+  createSubscriptionSchema,
+  userSubscribeSchema,
+} from './subscriptionPlan.validation';
 
 const router = express.Router();
 
-// Admin creates a subscription plan
 router.post(
   '/',
   auth(UserRole.ADMIN),
   validateRequest(createSubscriptionSchema),
   SubscriptionControllers.createSubscriptionPlan,
+);
+
+router.get('/', SubscriptionControllers.getAllSubscriptionPlan);
+router.get('/:id', SubscriptionControllers.getSingleSubscriptionPlan);
+
+router.delete(
+  '/:id/deactivate',
+  auth(UserRole.ADMIN),
+  SubscriptionControllers.deactivateSingleSubscriptionPlan,
+);
+
+// Admin updates a subscription plan
+router.patch(
+  '/:id',
+  auth(UserRole.ADMIN),
+  validateRequest(updateSubscriptionSchema),
+  SubscriptionControllers.updateOneSubscriptionPlan,
 );
 
 // User subscribes to a plan

@@ -25,7 +25,6 @@ model User {
   // relations
   userDetails       UserDetail?
   Payments          Payment[]
-  Subscriptions     Subscription[]
   UserSubscriptions UserSubscription[]
   authoredPosts     Post[]             @relation(name: "author")
   approvedPosts     Post[]             @relation(name: "approved_by_admin")
@@ -99,29 +98,35 @@ model Payment {
   @@map("payments")
 }
 
-model Subscription {
-  sId       String   @id @default(uuid()) @map("s_id")
-  name      String
-  fee       Decimal
-  duration  Int      @default(30) // duration in days
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+model SubscriptionPlans {
+  spId              String             @id @default(uuid()) @map("s_id")
+  name              String
+  fee               Decimal
+  duration          Int                @default(30) // duration in days
+  status            SubscriptionStatus @default(ACTIVE)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  userSubscriptions UserSubscription[]
 
-  @@map("subscriptions")
+  @@map("subscription_plans")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  IN_ACTIVE
 }
 
 model UserSubscription {
-  id             String   @id @default(uuid())
-  subscriptionId String   @map("subscription_id")
-  userId         String   @map("user_id")
-  expiringAt     DateTime @map("expiring_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid())
+  subPlanId  String   @map("sub_plan_id")
+  userId     String   @map("user_id")
+  expiringAt DateTime @map("expiring_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   // relations
-  user User? @relation(fields: [userId], references: [id])
+  user             User?             @relation(fields: [userId], references: [id])
+  subscriptionPlan SubscriptionPlans @relation(fields: [subPlanId], references: [spId])
 
   @@map("user_subscriptions")
 }

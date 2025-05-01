@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { HomeRoutes } from '../modules/home/home.route';
-import { UserRoutes } from '../modules/User/user.route';
+import { UserRoutes } from '../modules/user/user.route';
 import { PostCategoryRoutes } from '../modules/postCategory/postCategory.route';
 import { authRoutes } from '../modules/auth/auth.routes';
-import { SubscriptionRoutes } from '../modules/subscription/subscription.route';
+import { SubscriptionRoutes } from '../modules/subscriptionPlan/subscriptionPlan.route';
 import { CommentRoutes } from '../modules/comment/comment.route';
 import { PostRoutes } from '../modules/post/post.route';
 import { PostRatingRoutes } from '../modules/postRating/postRating.route';
@@ -34,7 +34,7 @@ const moduleRoutes = [
     route: PostRoutes,
   },
   {
-    path: `${apiPrefix}/subscription`,
+    path: `${apiPrefix}/subscription-plans`,
     route: SubscriptionRoutes,
   },
   {
