@@ -18,4 +18,9 @@ export default {
   bcrypt: {
     bcryptSaltRounds: process.env.BCRYPT_SALT_ROUND,
   },
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    secretKey: process.env.CLOUDINARY_API_SECRET,
+  },
 };
