@@ -1,0 +1,100 @@
+import { Votes, PrismaClient } from '@prisma/client';
+import { QueryBuilder } from '../../builder/QueryBuilder';
+import { JwtPayload } from 'jsonwebtoken';
+import {
+  checkIfPostExist,
+  checkIfVoteExist,
+  getUserIfExistsByEmail,
+} from '../../utils/checkIfExists';
+import AppError from '../../error/AppError';
+import httpStatus from 'http-status';
+
+const prisma = new PrismaClient();
+
+const createOneIntoDB = async (
+  payload: Votes,
+  userDecoded: JwtPayload,
+): Promise<Votes> => {
+  const user = await getUserIfExistsByEmail(userDecoded.email);
+  if (!user) {
+    throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized');
+  }
+  payload.voterId = user.id;
+  await checkIfPostExist(payload.postId);
+
+  const checkIfVoteExist = await prisma.votes.findFirst({
+    where: { vId: payload.vId, voterId: payload.voterId },
+  });
+  if (checkIfVoteExist) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'You have already rated this post',
+    );
+  }
+  const result = await prisma.votes.create({
+    data: payload,
+  });
+  return result;
+};
+
+const getAllFromDB = async (query: Record<string, unknown>, postId: string) => {
+  const totalVotes = await prisma.votes.count();
+  const upVoteCount = await prisma.votes.count({
+    where: {
+      postId,
+      vType: 'UPVOTE',
+    },
+  });
+  const downVoteCount = await prisma.votes.count({
+    where: {
+      postId,
+      vType: 'DOWNVOTE',
+    },
+  });
+  const postCategoryQueryBuilder = new QueryBuilder(prisma.votes, query, [
+    'vType',
+  ]);
+  const result = await postCategoryQueryBuilder
+    .search()
+    .filter()
+    .sort()
+    .paginate()
+    .execute();
+  return {
+    votes: result.data,
+    meta: { totalVotes, upVoteCount, downVoteCount, ...result.meta },
+  };
+};
+
+const updateOneIntoDB = async (
+  postId: string,
+  payload: Pick<Votes, 'vType'>,
+  userDecoded: JwtPayload,
+): Promise<Votes | null> => {
+  const user = await getUserIfExistsByEmail(userDecoded.email);
+  await checkIfPostExist(postId);
+  const result = await prisma.votes.update({
+    where: {
+      postId_voterId: {
+        postId,
+        voterId: user.id,
+      },
+    },
+    data: payload,
+  });
+  return result;
+};
+
+const deleteOneFromDB = async (vId: string): Promise<Votes | void> => {
+  await checkIfVoteExist(vId);
+  await prisma.votes.delete({
+    where: { vId },
+  });
+};
+
+export const VoteServices = {
+  createOneIntoDB,
+  getAllFromDB,
+  updateOneIntoDB,
+  deleteOneFromDB,
+};

@@ -181,6 +181,7 @@ model Votes {
   post  Post @relation(fields: [postId], references: [pId])
   voter User @relation(name: "post_votes", fields: [voterId], references: [id])
 
+  @@unique([postId, voterId])
   @@map("votes")
 }
 
