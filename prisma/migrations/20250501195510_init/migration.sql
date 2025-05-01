@@ -13,6 +13,9 @@ CREATE TYPE "PostStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 -- CreateEnum
 CREATE TYPE "vote_types" AS ENUM ('UPVOTE', 'DOWNVOTE');
 
+-- CreateEnum
+CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'IN_ACTIVE');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -52,22 +55,22 @@ CREATE TABLE "payments" (
 );
 
 -- CreateTable
-CREATE TABLE "subscriptions" (
+CREATE TABLE "subscription_plans" (
     "s_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "fee" DECIMAL(65,30) NOT NULL,
     "duration" INTEGER NOT NULL DEFAULT 30,
+    "status" "SubscriptionStatus" NOT NULL DEFAULT 'ACTIVE',
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "userId" TEXT,
 
-    CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("s_id")
+    CONSTRAINT "subscription_plans_pkey" PRIMARY KEY ("s_id")
 );
 
 -- CreateTable
 CREATE TABLE "user_subscriptions" (
     "id" TEXT NOT NULL,
-    "subscription_id" TEXT NOT NULL,
+    "sub_plan_id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "expiring_at" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -98,7 +101,7 @@ CREATE TABLE "posts" (
     "price_range_start" DECIMAL(65,30) NOT NULL,
     "price_range_end" DECIMAL(65,30) NOT NULL,
     "location" TEXT NOT NULL,
-    "approved_by" TEXT NOT NULL,
+    "approved_by" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -115,6 +118,18 @@ CREATE TABLE "votes" (
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "votes_pkey" PRIMARY KEY ("v_id")
+);
+
+-- CreateTable
+CREATE TABLE "post_ratings" (
+    "pr_id" TEXT NOT NULL,
+    "post_id" TEXT NOT NULL,
+    "rated_by" TEXT NOT NULL,
+    "rating" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "post_ratings_pkey" PRIMARY KEY ("pr_id")
 );
 
 -- CreateTable
@@ -145,16 +160,16 @@ ALTER TABLE "user_details" ADD CONSTRAINT "user_details_user_id_fkey" FOREIGN KE
 ALTER TABLE "payments" ADD CONSTRAINT "payments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "user_subscriptions" ADD CONSTRAINT "user_subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "user_subscriptions" ADD CONSTRAINT "user_subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "user_subscriptions" ADD CONSTRAINT "user_subscriptions_sub_plan_id_fkey" FOREIGN KEY ("sub_plan_id") REFERENCES "subscription_plans"("s_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "posts" ADD CONSTRAINT "posts_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "post_categories"("cat_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "posts" ADD CONSTRAINT "posts_approved_by_fkey" FOREIGN KEY ("approved_by") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "posts" ADD CONSTRAINT "posts_approved_by_fkey" FOREIGN KEY ("approved_by") REFERENCES "user"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "posts" ADD CONSTRAINT "posts_author_id_fkey" FOREIGN KEY ("author_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -164,6 +179,9 @@ ALTER TABLE "votes" ADD CONSTRAINT "votes_post_id_fkey" FOREIGN KEY ("post_id") 
 
 -- AddForeignKey
 ALTER TABLE "votes" ADD CONSTRAINT "votes_voter_id_fkey" FOREIGN KEY ("voter_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "post_ratings" ADD CONSTRAINT "post_ratings_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "posts"("p_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "comments" ADD CONSTRAINT "comments_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "posts"("p_id") ON DELETE RESTRICT ON UPDATE CASCADE;

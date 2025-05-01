@@ -1,12 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 import { Server } from 'http';
 import app from './app';
 import config from './app/config';
+import seedAdmin from './app/DB';
 
 let server: Server | null = null;
 const main = async () => {
   try {
+    await seedAdmin();
     server = app.listen(config.port, () => {
       console.log(`App running on http://localhost:${config.port}`);
     });
