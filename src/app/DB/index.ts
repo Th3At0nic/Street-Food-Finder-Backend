@@ -23,7 +23,7 @@ const seedAdmin = async () => {
       role: UserRole.ADMIN,
     };
 
-    const createAdmina = await prima.$transaction(async (tx) => {
+    await prima.$transaction(async (tx) => {
       const createdAdmin = await tx.user.create({
         data: {
           ...adminUser,

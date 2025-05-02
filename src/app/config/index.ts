@@ -23,6 +23,10 @@ export default {
   bcrypt: {
     bcryptSaltRounds: process.env.BCRYPT_SALT_ROUND,
   },
+  nodeMailer: {
+    GooglePassword: process.env.SEND_MAIL_PASSWORD,
+    GoogleEmail: process.env.SEND_MAIL_EMAIL,
+  },
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
