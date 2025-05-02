@@ -15,6 +15,11 @@ export default {
     refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
     refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
   },
+  resetPasswordCredential: {
+    resetPasswordSecret: process.env.RESET_PASSWORD_TOKEN,
+    resetTokenExpireIn: process.env.RESET_EXPIRES_IN,
+    resetPasswordLink: process.env.RESET_PASSWORD_LINK,
+  },
   bcrypt: {
     bcryptSaltRounds: process.env.BCRYPT_SALT_ROUND,
   },
