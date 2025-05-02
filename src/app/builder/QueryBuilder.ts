@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma } from '@prisma/client';
 
 type TQueryParams = {
@@ -84,8 +85,7 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
     return this;
   }
 
-  async execute() {
-    console.log({ where: this.where });
+  async execute(): Promise<{ meta: TMeta; data: any[] }> {
     const data = await this.model.findMany({
       where: this.where,
       orderBy: this.orderBy,

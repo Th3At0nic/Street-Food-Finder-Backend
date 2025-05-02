@@ -14,24 +14,22 @@ datasource db {
 }
 
 model User {
-  id                  String       @id @default(uuid())
-  email               String       @unique
-  role                UserRole     @default(USER)
-  password            String
-  needsPasswordChange Boolean      @default(false) @map("needs_password_change")
-  status              UserStatuses @default(ACTIVE)
-  createdAt           DateTime     @default(now()) @map("created_at")
-  updatedAt           DateTime     @updatedAt @map("updated_at")
+  id        String       @id @default(uuid())
+  email     String       @unique
+  role      UserRole     @default(USER)
+  password  String
+  status    UserStatuses @default(ACTIVE)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
 
   // relations
-  UserDetails       UserDetail?
+  userDetails       UserDetail?
   Payments          Payment[]
-  Subscriptions     Subscription[]
   UserSubscriptions UserSubscription[]
   authoredPosts     Post[]             @relation(name: "author")
   approvedPosts     Post[]             @relation(name: "approved_by_admin")
   Votes             Votes[]            @relation(name: "post_votes")
-  Comments          Comments[]         @relation(name: "post_comments")
+  comments          Comments[]         @relation(name: "post_comments")
 
   @@map("user")
 }
@@ -74,6 +72,7 @@ enum VoteTypes {
 model UserDetail {
   id            String   @id @default(uuid())
   userId        String   @unique @map("user_id")
+  name          String
   profilePhoto  String?  @map("profile_photo")
   contactNumber String?  @map("contact_number")
   createdAt     DateTime @default(now()) @map("created_at")
@@ -99,29 +98,35 @@ model Payment {
   @@map("payments")
 }
 
-model Subscription {
-  sId       String   @id @default(uuid()) @map("s_id")
-  name      String
-  fee       Decimal
-  duration  Int      @default(30) // duration in days
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
+model SubscriptionPlans {
+  spId              String             @id @default(uuid()) @map("s_id")
+  name              String
+  fee               Decimal
+  duration          Int                @default(30) // duration in days
+  status            SubscriptionStatus @default(ACTIVE)
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  userSubscriptions UserSubscription[]
 
-  @@map("subscriptions")
+  @@map("subscription_plans")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  IN_ACTIVE
 }
 
 model UserSubscription {
-  id             String   @id @default(uuid())
-  subscriptionId String   @map("subscription_id")
-  userId         String   @map("user_id")
-  expiringAt     DateTime @map("expiring_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid())
+  subPlanId  String   @map("sub_plan_id")
+  userId     String   @map("user_id")
+  expiringAt DateTime @map("expiring_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   // relations
-  User User? @relation(fields: [userId], references: [id])
+  user             User?             @relation(fields: [userId], references: [id])
+  subscriptionPlan SubscriptionPlans @relation(fields: [subPlanId], references: [spId])
 
   @@map("user_subscriptions")
 }
@@ -133,7 +138,7 @@ model PostCategory {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // relations
-  Posts Post[]
+  posts Post[]
 
   @@map("post_categories")
 }
@@ -142,25 +147,40 @@ model Post {
   pId             String     @id @default(uuid()) @map("p_id")
   categoryId      String     @map("category_id")
   authorId        String     @map("author_id")
-  pType           PostTypes  @map("p_type")
+  pType           PostTypes  @default(NORMAL) @map("p_type")
   status          PostStatus @default(PENDING)
   title           String
   description     String
   priceRangeStart Decimal    @map("price_range_start")
   priceRangeEnd   Decimal    @map("price_range_end")
   location        String
-  approvedBy      String     @map("approved_by")
+  approvedBy      String?    @map("approved_by")
   createdAt       DateTime   @default(now()) @map("created_at")
   updatedAt       DateTime   @updatedAt @map("updated_at")
 
   //relations
-  category        PostCategory @relation(fields: [categoryId], references: [catId])
-  approvedByAdmin User         @relation(name: "approved_by_admin", fields: [approvedBy], references: [id])
-  author          User         @relation(name: "author", fields: [authorId], references: [id])
+  category        PostCategory  @relation(fields: [categoryId], references: [catId])
+  approvedByAdmin User?         @relation(name: "approved_by_admin", fields: [approvedBy], references: [id])
+  author          User          @relation(name: "author", fields: [authorId], references: [id])
   votes           Votes[]
-  Comments        Comments[]
+  comments        Comments[]
+  postRatings     PostRatings[] @relation("post_postRatings_relation")
+  postImages      PostImages[]
 
   @@map("posts")
+}
+
+model PostImages {
+  imId      String   @id @default(uuid()) @map("im_id")
+  postId    String
+  file_path String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // relations
+  post Post @relation(fields: [postId], references: [pId])
+
+  @@map("post_images")
 }
 
 model Votes {
@@ -175,7 +195,22 @@ model Votes {
   post  Post @relation(fields: [postId], references: [pId])
   voter User @relation(name: "post_votes", fields: [voterId], references: [id])
 
+  @@unique([postId, voterId])
   @@map("votes")
+}
+
+model PostRatings {
+  prId      String   @id @default(uuid()) @map("pr_id")
+  postId    String   @map("post_id")
+  ratedBy   String   @map("rated_by")
+  rating    Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // relations
+  post Post @relation("post_postRatings_relation", fields: [postId], references: [pId])
+
+  @@map("post_ratings")
 }
 
 model Comments {

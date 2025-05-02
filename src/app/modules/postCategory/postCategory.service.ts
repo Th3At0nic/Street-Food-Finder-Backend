@@ -23,8 +23,7 @@ const createOneIntoDB = async (
   return result;
 };
 
-const getAllFromDB = async (query: Record<string, unknown>): Promise<any> => {
-  console.log({ query });
+const getAllFromDB = async (query: Record<string, unknown>) => {
   const postCategoryQueryBuilder = new QueryBuilder(
     prisma.postCategory,
     query,

@@ -22,6 +22,7 @@ const loginUser = async (payload: { email: string; password: string }) => {
     payload.password,
     userData.password,
   );
+
   if (!isCorrectPassword) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Your password is not correct');
   }
@@ -43,7 +44,6 @@ const loginUser = async (payload: { email: string; password: string }) => {
   );
   return {
     accessToken,
-    needsPasswordChange: userData.needsPasswordChange,
     refreshToken,
   };
 };
@@ -56,7 +56,9 @@ const refreshToken = async (token: string) => {
       config.jwt.refreshTokenSecret as Secret,
     ) as JwtPayload;
   } catch (error) {
-    throw new AppError(httpStatus.FORBIDDEN, 'you are not authorized');
+    if (error) {
+      throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized');
+    }
   }
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
@@ -74,7 +76,6 @@ const refreshToken = async (token: string) => {
   );
   return {
     accessToken,
-    needsPasswordChange: userData.needsPasswordChange,
     refreshToken,
   };
 };
