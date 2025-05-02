@@ -17,14 +17,13 @@ const seedAdmin = async () => {
       config.admin_password as string,
       Number(config.bcrypt.bcryptSaltRounds),
     );
-
     const adminUser = {
       email: 'admin@gmail.com',
       password,
       role: UserRole.ADMIN,
     };
 
-    await prima.$transaction(async (tx) => {
+    const createAdmina = await prima.$transaction(async (tx) => {
       const createdAdmin = await tx.user.create({
         data: {
           ...adminUser,
