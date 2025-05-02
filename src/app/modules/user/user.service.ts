@@ -8,15 +8,13 @@ const createUserIntoDb = async (
   file: Express.Multer.File,
   data: User & UserDetail,
 ) => {
+  let uploadedImageUrl: string;
   if (file) {
-    let uploadedImage;
-
     const imgName = `${data.email}-${Date.now()}`;
 
     const uploadImgResult = await sendImageToCloudinary(file.buffer, imgName);
     if (uploadImgResult?.secure_url) {
-      uploadedImage = uploadImgResult.secure_url;
-      console.log('image upload: ', uploadedImage);
+      uploadedImageUrl = await uploadImgResult.secure_url;
     }
   }
 
@@ -37,6 +35,7 @@ const createUserIntoDb = async (
       data: {
         userId: userData.id,
         name: data.name,
+        profilePhoto: uploadedImageUrl || null,
       },
       include: {
         user: true,

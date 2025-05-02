@@ -12,6 +12,6 @@ route.post(
     next();
   },
   userController.insertUserIntoDB,
-); // cloudinery work
+); // cloudinary work
 
 export const UserRoutes = route;
