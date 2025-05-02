@@ -2,8 +2,22 @@ import { User, UserDetail } from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import config from '../../config';
 import bcrypt from 'bcrypt';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
-const createUserIntoDb = async (data: User & UserDetail) => {
+const createUserIntoDb = async (
+  file: Express.Multer.File,
+  data: User & UserDetail,
+) => {
+  let uploadedImageUrl: string;
+  if (file) {
+    const imgName = `${data.email}-${Date.now()}`;
+
+    const uploadImgResult = await sendImageToCloudinary(file.buffer, imgName);
+    if (uploadImgResult?.secure_url) {
+      uploadedImageUrl = await uploadImgResult.secure_url;
+    }
+  }
+
   const hashedPassword: string = await bcrypt.hash(
     data.password,
     Number(config.bcrypt.bcryptSaltRounds),
@@ -21,6 +35,7 @@ const createUserIntoDb = async (data: User & UserDetail) => {
       data: {
         userId: userData.id,
         name: data.name,
+        profilePhoto: uploadedImageUrl || null,
       },
       include: {
         user: true,
