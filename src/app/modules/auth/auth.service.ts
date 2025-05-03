@@ -8,6 +8,7 @@ import { JwtPayload, Secret } from 'jsonwebtoken';
 import generateToken from '../../utils/generateToken';
 import verifyToken from '../../utils/verifyToken';
 import emailSender from '../../utils/sendMail';
+import { IAuthUser } from '../../interface/common';
 
 const loginUser = async (payload: { email: string; password: string }) => {
   //check is user data exist
@@ -80,12 +81,12 @@ const refreshToken = async (token: string) => {
   };
 };
 const changePassword = async (
-  user: { email: string },
+  user: Partial<IAuthUser>,
   payload: { oldPassword: string; newPassword: string },
 ) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
-      email: user.email,
+      email: user!.email,
       status: UserStatuses.ACTIVE,
     },
   });
@@ -107,7 +108,6 @@ const changePassword = async (
     },
     data: {
       password: hashedPassword,
-      needsPasswordChange: false,
     },
   });
   return {
@@ -176,7 +176,6 @@ const resetPassword = async (
     },
     data: {
       password: hashedPassword,
-      needsPasswordChange: false,
     },
   });
 };

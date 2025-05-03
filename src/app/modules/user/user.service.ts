@@ -1,14 +1,25 @@
-import { User, UserDetail } from '@prisma/client';
+import {
+  Prisma,
+  User,
+  UserDetail,
+  UserRole,
+  UserStatuses,
+} from '@prisma/client';
 import { prisma } from '../../../shared/prisma';
 import config from '../../config';
 import bcrypt from 'bcrypt';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+import { calculatePagination } from '../../utils/pagination.utils';
+import { IOptions } from '../../interface/pagination.type';
+import { userSearchAbleField } from './user.const';
+import { IAuthUser } from '../../interface/common';
 
 const createUserIntoDb = async (
   file: Express.Multer.File,
   data: User & UserDetail,
 ) => {
   let uploadedImageUrl: string;
+
   if (file) {
     const imgName = `${data.email}-${Date.now()}`;
 
@@ -31,6 +42,7 @@ const createUserIntoDb = async (
     const userData = await tx.user.create({
       data: userPayload,
     });
+
     const createdUserDetails = await tx.userDetail.create({
       data: {
         userId: userData.id,
@@ -41,6 +53,7 @@ const createUserIntoDb = async (
         user: true,
       },
     });
+
     return createdUserDetails;
   });
   const {
@@ -63,6 +76,164 @@ const createUserIntoDb = async (
   };
 };
 
+const getAllFromDb = async (params: any, options: IOptions): Promise<User> => {
+  const { limit, page, skip } = calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
+  const andConditions: Prisma.UserWhereInput[] = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: userSearchAbleField.map((field) => {
+        return {
+          [field]: {
+            contains: params.searchTerm,
+            mode: 'insensitive',
+          },
+        };
+      }),
+    });
+  }
+  if (Object.keys(filterData).length > 0) {
+    const filterConditions = Object.keys(filterData).map((key) => ({
+      [key]: {
+        equals: (filterData as any)[key],
+      },
+    }));
+    andConditions.push(...filterConditions);
+  }
+
+  const whereConditions: Prisma.UserWhereInput =
+    andConditions.length > 0
+      ? {
+          AND: andConditions,
+        }
+      : {};
+  const result = await prisma.user.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: 'desc',
+          },
+    select: {
+      id: true,
+      email: true,
+      status: true,
+      role: true,
+      createdAt: true,
+      updatedAt: true,
+      UserSubscriptions: true,
+      Payments: true,
+      comments: true,
+      Votes: true,
+      authoredPosts: true,
+      approvedPosts: true,
+      userDetails: true,
+    },
+  });
+  const total = await prisma.user.count({
+    where: whereConditions,
+  });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+const getSingleFromDb = async (id: string): Promise<User> => {
+  const isUserExist = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: id,
+      status: UserStatuses.ACTIVE,
+    },
+  });
+  return isUserExist;
+};
+const updateStatus = async (
+  id: string,
+  payload: { status: UserStatuses },
+): Promise<User> => {
+  await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const updateUser = await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      status: payload.status,
+    },
+  });
+  return updateUser;
+};
+
+const getMyProfile = async (user: IAuthUser): Promise<User> => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user?.email,
+      status: UserStatuses.ACTIVE,
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+    },
+  });
+  let profileInfo;
+  if (userInfo.role === UserRole.ADMIN) {
+    profileInfo = await prisma.user.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+      include: {
+        userDetails: true,
+        Payments: true,
+        UserSubscriptions: true,
+      },
+    });
+  } else if (userInfo.role === UserRole.USER) {
+    profileInfo = await prisma.user.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+      include: {
+        userDetails: true,
+        Payments: true,
+        UserSubscriptions: true,
+      },
+    });
+  } else if (userInfo.role === UserRole.PREMIUM_USER) {
+    profileInfo = await prisma.user.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+      include: {
+        userDetails: true,
+        Payments: true,
+        UserSubscriptions: true,
+      },
+    });
+  }
+
+  return { ...userInfo, ...profileInfo };
+};
 export const userService = {
   createUserIntoDb,
+  getAllFromDb,
+  getSingleFromDb,
+  updateStatus,
+  getMyProfile,
 };
