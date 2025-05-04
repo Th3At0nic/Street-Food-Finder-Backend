@@ -30,6 +30,7 @@ const createOneIntoDB = async (
       categoryId: payload.categoryId,
     },
   });
+
   return result;
 };
 
