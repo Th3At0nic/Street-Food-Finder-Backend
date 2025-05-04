@@ -1,11 +1,21 @@
 import jwt, { Secret } from 'jsonwebtoken';
 
 const generateToken = (
-  payload: { email: string; role: string },
-  secret: string | Secret,
+  payload: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  },
+  secret: Secret,
   expiresIn: string,
 ) => {
-  const token = jwt.sign(payload, secret, { algorithm: 'HS256', expiresIn });
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  const token = jwt.sign(payload, secret, {
+    expiresIn: expiresIn,
+    algorithm: 'HS256',
+  });
   return token;
 };
 

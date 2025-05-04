@@ -14,6 +14,8 @@ import { calculatePagination } from '../../utils/pagination.utils';
 import { IOptions } from '../../interface/pagination.type';
 import { userSearchAbleField } from './user.const';
 import { IAuthUser } from '../../interface/common';
+import { getUserIfExistsByEmail } from '../../utils/checkIfExists';
+import { loginUser } from '../auth/auth.service';
 
 const createUserIntoDb = async (
   file: Express.Multer.File,
@@ -28,6 +30,12 @@ const createUserIntoDb = async (
     if (uploadImgResult?.secure_url) {
       uploadedImageUrl = await uploadImgResult.secure_url;
     }
+  } else if (data.profilePhoto) {
+    const user = await getUserIfExistsByEmail(data.email);
+    if (user) {
+      return loginUser({ email: user.email, password: user.password }, true);
+    }
+    uploadedImageUrl = data.profilePhoto;
   }
 
   const hashedPassword: string = await bcrypt.hash(

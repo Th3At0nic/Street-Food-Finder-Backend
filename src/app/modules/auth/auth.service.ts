@@ -10,36 +10,43 @@ import verifyToken from '../../utils/verifyToken';
 import emailSender from '../../utils/sendMail';
 import { IAuthUser } from '../../interface/common';
 
-const loginUser = async (payload: { email: string; password: string }) => {
+export const loginUser = async (
+  payload: {
+    email: string;
+    password: string;
+  },
+  socialLogin?: boolean,
+) => {
   //check is user data exist
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: payload.email,
       status: UserStatuses.ACTIVE,
     },
+    include: {
+      userDetails: true,
+    },
   });
   // check is password correct
-  const isCorrectPassword = await bcrypt.compare(
-    payload.password,
-    userData.password,
-  );
+  const isCorrectPassword =
+    socialLogin || (await bcrypt.compare(payload.password, userData.password));
 
   if (!isCorrectPassword) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Your password is not correct');
   }
+  const userPayload = {
+    id: userData.id,
+    name: userData.userDetails?.name || '',
+    email: userData.email,
+    role: userData.role,
+  };
   const accessToken = generateToken(
-    {
-      email: userData.email,
-      role: userData.role,
-    },
+    userPayload,
     config.jwt.jwtAccessToken as Secret,
     config.jwt.jwtExpiresIn as string,
   );
   const refreshToken = generateToken(
-    {
-      email: userData.email,
-      role: userData.role,
-    },
+    userPayload,
     config.jwt.refreshTokenSecret as Secret,
     config.jwt.refreshExpiresIn as string,
   );
@@ -66,12 +73,19 @@ const refreshToken = async (token: string) => {
       email: decodedData?.email,
       status: UserStatuses.ACTIVE,
     },
-  });
-  const accessToken = generateToken(
-    {
-      email: userData.email,
-      role: userData.role,
+    include: {
+      userDetails: true,
     },
+  });
+
+  const userPayload = {
+    id: userData.id,
+    name: userData.userDetails?.name || '',
+    email: userData.email,
+    role: userData.role,
+  };
+  const accessToken = generateToken(
+    userPayload,
     config.jwt.jwtAccessToken as Secret,
     config.jwt.jwtExpiresIn as string,
   );
@@ -120,9 +134,19 @@ const forgotPassword = async (payload: { email: string }) => {
       email: payload.email,
       status: UserStatuses.ACTIVE,
     },
+    include: {
+      userDetails: true,
+    },
   });
+
+  const userPayload = {
+    id: userExist.id,
+    name: userExist.userDetails?.name || '',
+    email: userExist.email,
+    role: userExist.role,
+  };
   const resetPasswordToken = generateToken(
-    { email: userExist.email, role: userExist.role },
+    userPayload,
     config.resetPasswordCredential.resetPasswordSecret as Secret,
     config.resetPasswordCredential.resetTokenExpireIn as string,
   );
