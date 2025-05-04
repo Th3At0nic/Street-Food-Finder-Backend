@@ -22,7 +22,6 @@ const createUserIntoDb = async (
   data: User & UserDetail,
 ) => {
   let uploadedImageUrl: string;
-
   if (file) {
     const imgName = `${data.email}-${Date.now()}`;
 
@@ -31,10 +30,11 @@ const createUserIntoDb = async (
       uploadedImageUrl = await uploadImgResult.secure_url;
     }
   } else if (data.profilePhoto) {
-    const user = await getUserIfExistsByEmail(data.email);
-    if (user) {
+    try {
+      const user = await getUserIfExistsByEmail(data.email);
       return loginUser({ email: user.email, password: user.password }, true);
-    }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
+    } catch (err) {}
     uploadedImageUrl = data.profilePhoto;
   }
 
