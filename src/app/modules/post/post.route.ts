@@ -1,9 +1,10 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { PostControllers } from './post.controller';
 import { PostValidations } from './post.validation';
 import auth from '../../middlewares/authMiddleware';
 import { UserRole } from '@prisma/client';
+import { upload } from '../../utils/sendImageToCloudinary';
 
 const router = express.Router();
 
@@ -11,6 +12,11 @@ const router = express.Router();
 router.post(
   '/',
   auth(UserRole.USER, UserRole.PREMIUM_USER),
+  upload.array('files', 10),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
   validateRequest(PostValidations.createPostSchema),
   PostControllers.createOne,
 );

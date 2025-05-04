@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Prisma,
   User,
@@ -76,7 +77,7 @@ const createUserIntoDb = async (
   };
 };
 
-const getAllFromDb = async (params: any, options: IOptions): Promise<User> => {
+const getAllFromDb = async (params: any, options: IOptions) => {
   const { limit, page, skip } = calculatePagination(options);
   const { searchTerm, ...filterData } = params;
   const andConditions: Prisma.UserWhereInput[] = [];
@@ -136,6 +137,7 @@ const getAllFromDb = async (params: any, options: IOptions): Promise<User> => {
       userDetails: true,
     },
   });
+
   const total = await prisma.user.count({
     where: whereConditions,
   });
@@ -179,7 +181,7 @@ const updateStatus = async (
   return updateUser;
 };
 
-const getMyProfile = async (user: IAuthUser): Promise<User> => {
+const getMyProfile = async (user: IAuthUser) => {
   const userInfo = await prisma.user.findUniqueOrThrow({
     where: {
       email: user?.email,

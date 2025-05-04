@@ -7,14 +7,17 @@ import {
   checkIfPostExist,
   getUserIfExistsByEmail,
 } from '../../utils/checkIfExists';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
 const prisma = new PrismaClient();
 
 const createOneIntoDB = async (
+  files: Express.Multer.File[],
   payload: Post,
   userDecoded: JwtPayload,
 ): Promise<Post> => {
   const user = await getUserIfExistsByEmail(userDecoded.email);
+
   if (!user) {
     throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized');
   }
@@ -30,6 +33,29 @@ const createOneIntoDB = async (
       categoryId: payload.categoryId,
     },
   });
+
+  if (files && files.length > 0) {
+    // const uploadedImages: string[] = [];
+
+    // Upload each file to Cloudinary
+    for (const file of files) {
+      const imgName = `${Math.random().toString(36).substring(2, 10)}-${Date.now()}`;
+
+      // const imgPath = file.path;
+
+      const uploadImgResult = await sendImageToCloudinary(file.buffer, imgName);
+      if (uploadImgResult?.secure_url) {
+        // uploadedImages.push(uploadImgResult.secure_url);
+        await prisma.postImages.create({
+          data: {
+            postId: result.pId,
+            file_path: uploadImgResult.secure_url,
+          },
+        });
+      }
+    }
+  }
+
   return result;
 };
 

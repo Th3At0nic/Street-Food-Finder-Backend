@@ -4,7 +4,8 @@ import sendResponse from '../../utils/sendResponse';
 import { PostServices } from './post.service';
 
 const createOne = catchAsync(async (req, res) => {
-  const result = await PostServices.createOneIntoDB(req.body, req.user);
+  const files = req?.files as Express.Multer.File[];
+  const result = await PostServices.createOneIntoDB(files, req.body, req.user);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
