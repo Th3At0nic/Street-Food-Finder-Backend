@@ -138,7 +138,7 @@ model PostCategory {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // relations
-  posts Post[]
+  Post Post[]
 
   @@map("post_categories")
 }
