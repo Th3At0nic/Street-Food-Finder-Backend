@@ -8,12 +8,16 @@ import { userValidation } from './user.validation';
 
 const route = express.Router();
 route.get('/', auth(UserRole.ADMIN), userController.getAllFromDB);
+
 route.get(
   '/me',
   auth(UserRole.ADMIN, UserRole.PREMIUM_USER, UserRole.USER),
   userController.getMyProfile,
 );
+
 route.get('/:id', userController.getSingleFromDB);
+
+// registration route
 route.post(
   '/',
   upload.single('file'),
@@ -22,7 +26,7 @@ route.post(
     next();
   },
   userController.insertUserIntoDB,
-); // cloudinary work
+);
 
 route.patch(
   '/:id/status',
