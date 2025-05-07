@@ -14,6 +14,12 @@ router.post(
   PostRatingControllers.createOne,
 );
 
+router.get(
+  '/my-rating/:postId',
+  auth(UserRole.USER, UserRole.PREMIUM_USER),
+  PostRatingControllers.getMyRating,
+);
+
 router.get('/', PostRatingControllers.getAll);
 router.get('/:id', PostRatingControllers.getOne);
 

@@ -6,7 +6,7 @@ import { PostRatingServices } from './postRating.service';
 const createOne = catchAsync(async (req, res) => {
   const result = await PostRatingServices.createOneIntoDB(req.body, req.user);
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: 'Post rating created successfully',
     data: result,
@@ -23,12 +23,25 @@ const getAll = catchAsync(async (req, res) => {
   });
 });
 
+const getMyRating = catchAsync(async (req, res) => {
+  const result = await PostRatingServices.getMyRatingFromDB(
+    req.params.postId,
+    req.user,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Post rating retrieved successfully',
+    data: result,
+  });
+});
+
 const getOne = catchAsync(async (req, res) => {
   const result = await PostRatingServices.getOneFromDB(req.params.id);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Post rating retrieved successfully',
+    message: 'My post rating retrieved successfully',
     data: result,
   });
 });
@@ -59,6 +72,7 @@ const deleteOne = catchAsync(async (req, res) => {
 export const PostRatingControllers = {
   createOne,
   getAll,
+  getMyRating,
   getOne,
   updateOne,
   deleteOne,

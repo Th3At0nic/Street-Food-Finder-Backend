@@ -67,6 +67,16 @@ export const checkIfVoteExist = async (vId: string): Promise<void> => {
   }
 };
 
+export const checkIfPostRatingExist = async (prId: string): Promise<void> => {
+  if (
+    !(await prisma.postRatings.count({
+      where: { prId },
+    }))
+  ) {
+    throw new NotFoundError('Post rating');
+  }
+};
+
 export const checkIfSubscriptionPlanExist = async (
   spId: string,
 ): Promise<void> => {
