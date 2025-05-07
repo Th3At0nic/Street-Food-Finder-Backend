@@ -7,7 +7,7 @@ const createOne = catchAsync(async (req, res) => {
   const files = req?.files as Express.Multer.File[];
   const result = await PostServices.createOneIntoDB(files, req.body, req.user);
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: 'Post created successfully',
     data: result,

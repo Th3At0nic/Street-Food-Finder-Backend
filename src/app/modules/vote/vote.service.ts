@@ -11,10 +11,7 @@ import httpStatus from 'http-status';
 
 const prisma = new PrismaClient();
 
-const createOneIntoDB = async (
-  payload: Votes,
-  userDecoded: JwtPayload,
-): Promise<Votes> => {
+const createOneIntoDB = async (payload: Votes, userDecoded: JwtPayload) => {
   const user = await getUserIfExistsByEmail(userDecoded.email);
   if (!user) {
     throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized');
@@ -26,10 +23,19 @@ const createOneIntoDB = async (
     where: { vId: payload.vId, voterId: payload.voterId },
   });
   if (checkIfVoteExist) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'You have already rated this post',
-    );
+    if (checkIfVoteExist.vType === payload.vType) {
+      return await deleteOneFromDB(checkIfVoteExist.vId);
+    } else {
+      const updatedResult = await prisma.votes.update({
+        where: {
+          vId: checkIfVoteExist.vId,
+        },
+        data: {
+          vType: payload.vType,
+        },
+      });
+      return updatedResult;
+    }
   }
   const result = await prisma.votes.create({
     data: payload,
