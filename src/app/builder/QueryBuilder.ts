@@ -100,6 +100,19 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
           comments: true,
           postRatings: true,
           postImages: true,
+          author: {
+            select: {
+              id: true,
+              role: true,
+              status: true,
+              userDetails: {
+                select: {
+                  name: true,
+                  profilePhoto: true,
+                },
+              },
+            },
+          },
         },
       });
     } else {
