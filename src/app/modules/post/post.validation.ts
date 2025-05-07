@@ -5,7 +5,6 @@ const PostStatus = z.enum(['PENDING', 'APPROVED', 'REJECTED']);
 const createPostSchema = z.object({
   body: z.object({
     categoryId: z.string({ required_error: 'Category is required' }),
-    authorId: z.string({ required_error: 'Author is required' }),
     title: z.string().min(1),
     description: z.string({ required_error: 'Description is required' }).min(1),
     priceRangeStart: z
@@ -21,7 +20,6 @@ const createPostSchema = z.object({
 const updatePostSchema = z.object({
   body: z.object({
     categoryId: z.string().optional(),
-    authorId: z.string().optional(),
     pType: PostTypes.optional(),
     status: PostStatus.optional(),
     title: z.string().min(1).optional(),

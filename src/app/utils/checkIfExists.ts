@@ -21,7 +21,7 @@ export const checkIfPostExist = async (pId: string): Promise<void> => {
       where: { pId },
     }))
   ) {
-    throw new NotFoundError('Post category');
+    throw new NotFoundError('Post');
   }
 };
 

@@ -60,9 +60,12 @@ const createOneIntoDB = async (
 };
 
 const getAllFromDB = async (query: Record<string, unknown>) => {
-  const postCategoryQueryBuilder = new QueryBuilder(prisma.post, query, [
-    'name',
-  ]);
+  const postCategoryQueryBuilder = new QueryBuilder(
+    prisma.post,
+    query,
+    ['name'],
+    'Post',
+  );
   const result = await postCategoryQueryBuilder
     .search()
     .filter()

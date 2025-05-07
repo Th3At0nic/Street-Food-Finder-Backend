@@ -32,6 +32,7 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
     private readonly model: T,
     private query: TQueryParams,
     private searchableFields: string[],
+    private modelName?: string,
   ) {
     this.where = {};
   }
@@ -86,13 +87,31 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
   }
 
   async execute(): Promise<{ meta: TMeta; data: any[] }> {
-    const data = await this.model.findMany({
-      where: this.where,
-      orderBy: this.orderBy,
-      skip: this.skip,
-      take: this.take,
-    });
+    let data;
+    if (this.modelName === 'Post') {
+      data = await this.model.findMany({
+        where: this.where,
+        orderBy: this.orderBy,
+        skip: this.skip,
+        take: this.take,
+        include: {
+          category: true,
+          votes: true,
+          comments: true,
+          postRatings: true,
+          postImages: true,
+        },
+      });
+    } else {
+      data = await this.model.findMany({
+        where: this.where,
+        orderBy: this.orderBy,
+        skip: this.skip,
+        take: this.take,
+      });
+    }
 
+    // console.log({ data });
     const total = await this.model.count({ where: this.where });
 
     return {
