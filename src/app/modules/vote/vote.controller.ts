@@ -23,6 +23,28 @@ const getAll = catchAsync(async (req, res) => {
   });
 });
 
+const getUserVote = catchAsync(async (req, res) => {
+  const result = await VoteServices.getUserVoteFromDB(
+    req.params.postId,
+    req.user,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User vote retrieved successfully',
+    data: result,
+  });
+});
+const getVoteCounts = catchAsync(async (req, res) => {
+  const result = await VoteServices.getVoteCountFromDB(req.params.postId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Vote counts retrieved successfully',
+    data: result,
+  });
+});
+
 const updateOne = catchAsync(async (req, res) => {
   const result = await VoteServices.updateOneIntoDB(
     req.params.postId,
@@ -50,6 +72,8 @@ const deleteOne = catchAsync(async (req, res) => {
 export const VoteControllers = {
   createOne,
   getAll,
+  getUserVote,
+  getVoteCounts,
   updateOne,
   deleteOne,
 };
