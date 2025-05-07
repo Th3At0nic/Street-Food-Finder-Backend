@@ -24,30 +24,31 @@ export const createSubscriptionSchema = z.object({
  * Schema for user subscribing to a plan (after payment success)
  */
 export const updateSubscriptionSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }).optional(),
-  fee: z
-    .union([
-      z.string().refine((val) => !isNaN(Number(val)), {
-        message: 'Fee must be a valid number string',
-      }),
-      z.number(),
-    ])
-    .optional(),
-  duration: z
-    .number()
-    .int()
-    .min(15, { message: 'Duration must be at least 15 days' })
-    .optional(),
+  body: z.object({
+    name: z.string().min(1, { message: 'Name is required' }).optional(),
+    fee: z
+      .union([
+        z.string().refine((val) => !isNaN(Number(val)), {
+          message: 'Fee must be a valid number string',
+        }),
+        z.number(),
+      ])
+      .optional(),
+    duration: z
+      .number()
+      .int()
+      .min(15, { message: 'Duration must be at least 15 days' })
+      .optional(),
+  }),
 });
 
 /**
  * Schema for user subscribing to a plan (after payment success)
  */
 export const userSubscribeSchema = z.object({
-  subscriptionId: z
-    .string()
-    .uuid({ message: 'Invalid subscription ID format' }),
-  userId: z.string().uuid({ message: 'Invalid user ID format' }),
+  body: z.object({
+    subscriptionId: z.string({ message: 'Invalid subscription ID format' }),
+  }),
 });
 
 // ✅ Export inferred types (optional, for cleaner controller usage)
