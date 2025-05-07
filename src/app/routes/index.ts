@@ -39,7 +39,7 @@ const moduleRoutes = [
     route: SubscriptionRoutes,
   },
   {
-    path: `${apiPrefix}/comment`,
+    path: `${apiPrefix}/comments`,
     route: CommentRoutes,
   },
   {

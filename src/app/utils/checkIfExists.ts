@@ -25,6 +25,16 @@ export const checkIfPostExist = async (pId: string): Promise<void> => {
   }
 };
 
+export const checkIfCommentExist = async (cId: string): Promise<void> => {
+  if (
+    !(await prisma.comments.count({
+      where: { cId },
+    }))
+  ) {
+    throw new NotFoundError('Comment');
+  }
+};
+
 export const checkIfPostRatingsExist = async (prId: string): Promise<void> => {
   if (
     !(await prisma.postRatings.count({

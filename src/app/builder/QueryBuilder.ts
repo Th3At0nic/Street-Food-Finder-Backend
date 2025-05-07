@@ -124,7 +124,7 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
       });
     }
 
-    // console.log({ data });
+    console.log({ data });
     const total = await this.model.count({ where: this.where });
 
     return {

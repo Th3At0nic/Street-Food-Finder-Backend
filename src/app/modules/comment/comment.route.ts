@@ -4,43 +4,32 @@ import { CommentControllers } from './comment.controller';
 
 import auth from '../../middlewares/authMiddleware';
 import { UserRole } from '@prisma/client';
-import {
-  createCommentSchema,
-  deleteCommentSchema,
-  getAllCommentsSchema,
-  getCommentSchema,
-  updateCommentSchema,
-} from './comment.vallidation';
+import { createCommentSchema, updateCommentSchema } from './comment.validation';
 
 const router = express.Router();
 
 router.post(
-  '/',
-  auth(UserRole.USER),
+  '/:postId',
+  auth(UserRole.USER, UserRole.PREMIUM_USER),
   validateRequest(createCommentSchema),
   CommentControllers.createOne,
 );
 
+router.get('/post/:postId', CommentControllers.getAll);
+
+router.get('/:commentId', CommentControllers.getOne);
+
 router.patch(
-  '/',
-  auth(UserRole.USER),
+  '/:commentId',
+  auth(UserRole.USER, UserRole.PREMIUM_USER),
   validateRequest(updateCommentSchema),
   CommentControllers.updateOne,
 );
 
 router.delete(
-  '/',
-  auth(UserRole.USER),
-  validateRequest(deleteCommentSchema),
+  '/:commentId',
+  auth(UserRole.USER, UserRole.PREMIUM_USER, UserRole.ADMIN),
   CommentControllers.deleteOne,
-);
-
-router.get('/', validateRequest(getCommentSchema), CommentControllers.getOne);
-
-router.get(
-  '/all',
-  validateRequest(getAllCommentsSchema),
-  CommentControllers.getAll,
 );
 
 export const CommentRoutes = router;
