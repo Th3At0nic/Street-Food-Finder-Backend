@@ -16,6 +16,13 @@ router.post(
 
 router.get('/:postId', VoteControllers.getAll);
 
+router.get(
+  '/user/:postId',
+  auth(UserRole.USER, UserRole.PREMIUM_USER),
+  VoteControllers.getUserVote,
+);
+router.get('/vote-count/:postId', VoteControllers.getVoteCounts);
+
 router.patch(
   '/:postId',
   auth(UserRole.USER, UserRole.PREMIUM_USER),

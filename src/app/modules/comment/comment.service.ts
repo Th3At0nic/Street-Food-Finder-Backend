@@ -23,27 +23,35 @@ const createOneIntoDB = async (
   payload.commenterId = user.id;
   payload.postId = postId;
   await checkIfPostExist(payload.postId);
-
-  const checkIfVoteExist = await prisma.comments.findFirst({
-    where: { postId: payload.postId, commenterId: payload.commenterId },
-  });
-  if (checkIfVoteExist) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'You have already commented on this post',
-    );
-  }
   const result = await prisma.comments.create({
     data: payload,
+    include: {
+      commenter: {
+        select: {
+          id: true,
+          role: true,
+          status: true,
+          userDetails: {
+            select: {
+              name: true,
+              profilePhoto: true,
+            },
+          },
+        },
+      },
+    },
   });
   return result;
 };
 
 const getAllFromDB = async (query: Record<string, unknown>, postId: string) => {
   query.postId = postId;
-  const postCategoryQueryBuilder = new QueryBuilder(prisma.comments, query, [
-    'postId',
-  ]);
+  const postCategoryQueryBuilder = new QueryBuilder(
+    prisma.comments,
+    query,
+    ['postId'],
+    'Comments',
+  );
   const result = await postCategoryQueryBuilder
     .search()
     .filter()

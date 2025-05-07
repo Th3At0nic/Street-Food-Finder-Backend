@@ -3,7 +3,7 @@ import { QueryBuilder } from '../../builder/QueryBuilder';
 import { JwtPayload } from 'jsonwebtoken';
 import {
   checkIfPostExist,
-  checkIfVoteExist,
+  checkIfPostRatingExist,
   getUserIfExistsByEmail,
 } from '../../utils/checkIfExists';
 import AppError from '../../error/AppError';
@@ -50,8 +50,19 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
+const getMyRatingFromDB = async (
+  postId: string,
+  userDecoded: JwtPayload,
+): Promise<PostRatings | null> => {
+  await checkIfPostExist(postId);
+  const result = await prisma.postRatings.findFirst({
+    where: { postId, ratedBy: userDecoded.id },
+  });
+  return result;
+};
+
 const getOneFromDB = async (prId: string): Promise<PostRatings | null> => {
-  await checkIfVoteExist(prId);
+  await checkIfPostRatingExist(prId);
   const result = await prisma.postRatings.findFirst({
     where: { prId },
   });
@@ -62,7 +73,7 @@ const updateOneIntoDB = async (
   prId: string,
   payload: Pick<PostRatings, 'rating'>,
 ): Promise<PostRatings | null> => {
-  await checkIfVoteExist(prId);
+  await checkIfPostRatingExist(prId);
   const result = await prisma.postRatings.update({
     where: { prId },
     data: payload,
@@ -71,7 +82,7 @@ const updateOneIntoDB = async (
 };
 
 const deleteOneFromDB = async (prId: string): Promise<PostRatings | void> => {
-  await checkIfVoteExist(prId);
+  await checkIfPostRatingExist(prId);
   await prisma.postRatings.delete({
     where: { prId },
   });
@@ -80,6 +91,7 @@ const deleteOneFromDB = async (prId: string): Promise<PostRatings | void> => {
 export const PostRatingServices = {
   createOneIntoDB,
   getAllFromDB,
+  getMyRatingFromDB,
   getOneFromDB,
   updateOneIntoDB,
   deleteOneFromDB,

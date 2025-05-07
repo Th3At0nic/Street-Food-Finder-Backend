@@ -87,40 +87,101 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
   }
 
   async execute(): Promise<{ meta: TMeta; data: any[] }> {
-    let data;
+    let findObject = {
+      where: this.where,
+      orderBy: this.orderBy,
+      skip: this.skip,
+      take: this.take,
+    };
     if (this.modelName === 'Post') {
-      data = await this.model.findMany({
-        where: this.where,
-        orderBy: this.orderBy,
-        skip: this.skip,
-        take: this.take,
-        include: {
-          category: true,
-          votes: true,
-          comments: true,
-          postRatings: true,
-          postImages: true,
-          author: {
-            select: {
-              id: true,
-              role: true,
-              status: true,
-              userDetails: {
-                select: {
-                  name: true,
-                  profilePhoto: true,
+      findObject = {
+        ...findObject,
+        ...{
+          include: {
+            category: true,
+            postImages: true,
+            author: {
+              select: {
+                id: true,
+                role: true,
+                status: true,
+                userDetails: {
+                  select: {
+                    name: true,
+                    profilePhoto: true,
+                  },
+                },
+              },
+            },
+            comments: {
+              take: 3,
+              orderBy: {
+                createdAt: 'desc',
+              },
+              include: {
+                commenter: {
+                  select: {
+                    id: true,
+                    role: true,
+                    status: true,
+                    userDetails: {
+                      select: {
+                        name: true,
+                        profilePhoto: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            postRatings: {
+              select: {
+                rating: true,
+              },
+            },
+            _count: {
+              select: {
+                comments: true,
+                votes: true,
+                postRatings: true,
+              },
+            },
+          },
+        },
+      };
+    } else if (this.modelName === 'Comments') {
+      findObject = {
+        ...findObject,
+        ...{
+          include: {
+            commenter: {
+              select: {
+                id: true,
+                role: true,
+                status: true,
+                userDetails: {
+                  select: {
+                    name: true,
+                    profilePhoto: true,
+                  },
                 },
               },
             },
           },
         },
-      });
-    } else {
-      data = await this.model.findMany({
-        where: this.where,
-        orderBy: this.orderBy,
-        skip: this.skip,
-        take: this.take,
+      };
+    }
+    console.log(findObject);
+    const data = await this.model.findMany(findObject);
+    if (this.modelName === 'Post') {
+      data.forEach((post) => {
+        const ratings =
+          post.postRatings?.map((r: { rating: any }) => r.rating) || [];
+        const avg =
+          ratings.length > 0
+            ? ratings.reduce((sum: any, r: any) => sum + r, 0) / ratings.length
+            : null;
+        post.averageRating = avg;
       });
     }
 

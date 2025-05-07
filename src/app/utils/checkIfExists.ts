@@ -1,4 +1,4 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PostStatus, PrismaClient, User } from '@prisma/client';
 import NotFoundError from '../error/NotFoundError';
 import AppError from '../error/AppError';
 import httpStatus from 'http-status';
@@ -15,7 +15,19 @@ export const getUserIfExistsByEmail = async (email: string): Promise<User> => {
   return user;
 };
 
-export const checkIfPostExist = async (pId: string): Promise<void> => {
+export const checkIfPostExist = async (
+  pId: string,
+  status: PostStatus | null = null,
+): Promise<void> => {
+  if (status) {
+    if (
+      !(await prisma.post.count({
+        where: { pId, status },
+      }))
+    ) {
+      throw new NotFoundError('Post');
+    }
+  }
   if (
     !(await prisma.post.count({
       where: { pId },
@@ -52,6 +64,16 @@ export const checkIfVoteExist = async (vId: string): Promise<void> => {
     }))
   ) {
     throw new NotFoundError('Vote');
+  }
+};
+
+export const checkIfPostRatingExist = async (prId: string): Promise<void> => {
+  if (
+    !(await prisma.postRatings.count({
+      where: { prId },
+    }))
+  ) {
+    throw new NotFoundError('Post rating');
   }
 };
 

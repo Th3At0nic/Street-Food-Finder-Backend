@@ -1,4 +1,4 @@
-import { Votes, PrismaClient } from '@prisma/client';
+import { Votes, PrismaClient, PostStatus } from '@prisma/client';
 import { QueryBuilder } from '../../builder/QueryBuilder';
 import { JwtPayload } from 'jsonwebtoken';
 import {
@@ -17,7 +17,7 @@ const createOneIntoDB = async (payload: Votes, userDecoded: JwtPayload) => {
     throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized');
   }
   payload.voterId = user.id;
-  await checkIfPostExist(payload.postId);
+  await checkIfPostExist(payload.postId, PostStatus.APPROVED);
 
   const checkIfVoteExist = await prisma.votes.findFirst({
     where: { vId: payload.vId, voterId: payload.voterId },
@@ -57,6 +57,7 @@ const getAllFromDB = async (query: Record<string, unknown>, postId: string) => {
       vType: 'DOWNVOTE',
     },
   });
+  query.postId = postId;
   const postCategoryQueryBuilder = new QueryBuilder(prisma.votes, query, [
     'vType',
   ]);
@@ -70,6 +71,31 @@ const getAllFromDB = async (query: Record<string, unknown>, postId: string) => {
     votes: result.data,
     meta: { totalVotes, upVoteCount, downVoteCount, ...result.meta },
   };
+};
+
+const getVoteCountFromDB = async (postId: string) => {
+  const upVoteCount = await prisma.votes.count({
+    where: {
+      postId,
+      vType: 'UPVOTE',
+    },
+  });
+  const downVoteCount = await prisma.votes.count({
+    where: {
+      postId,
+      vType: 'DOWNVOTE',
+    },
+  });
+  return { upVoteCount, downVoteCount };
+};
+const getUserVoteFromDB = async (postId: string, userDecoded: JwtPayload) => {
+  const result = await prisma.votes.findFirst({
+    where: {
+      postId,
+      voterId: userDecoded.id,
+    },
+  });
+  return result;
 };
 
 const updateOneIntoDB = async (
@@ -101,6 +127,8 @@ const deleteOneFromDB = async (vId: string): Promise<Votes | void> => {
 export const VoteServices = {
   createOneIntoDB,
   getAllFromDB,
+  getVoteCountFromDB,
+  getUserVoteFromDB,
   updateOneIntoDB,
   deleteOneFromDB,
 };
