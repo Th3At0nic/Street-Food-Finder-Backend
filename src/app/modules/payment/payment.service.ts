@@ -112,19 +112,26 @@ const verifyPayment = async (
 
     const userSubscriptionId = verificationResponse.customer_order_id;
     const userSubscription = await prisma.userSubscription.findUnique({
-      where: { id: userSubscriptionId, paymentStatus: PaymentStatus.PENDING },
+      where: { id: userSubscriptionId },
       include: {
         subscriptionPlan: true,
+        payment: true,
       },
     });
 
     if (!userSubscription) {
       throw new AppError(
         httpStatus.NOT_FOUND,
-        'User subscription not found for this payment or already verified.',
+        'User subscription not found for this payment.',
       );
     }
-
+    if (userSubscription.paymentStatus === PaymentStatus.PAID) {
+      return {
+        verificationResponse,
+        payment: userSubscription.payment,
+        userSubscription,
+      };
+    }
     let payment = null;
     const paymentData = {
       userId: userSubscription.userId,
