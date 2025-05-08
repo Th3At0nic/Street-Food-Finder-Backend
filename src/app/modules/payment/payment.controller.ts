@@ -58,7 +58,7 @@ const deleteOne = catchAsync(async (req, res) => {
 // Verify payment - manually check a payment status
 const verifyPayment = catchAsync(async (req, res) => {
   const { spOrderId } = req.body;
-  const result = await PaymentServices.verifyPayment(spOrderId);
+  const result = await PaymentServices.verifyPayment(spOrderId, req.user);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

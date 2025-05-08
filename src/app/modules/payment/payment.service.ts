@@ -13,6 +13,7 @@ import { paymentUtils } from './payment.utils';
 import AppError from '../../error/AppError';
 import httpStatus from 'http-status';
 import { Decimal } from '@prisma/client/runtime/library';
+import { JwtPayload } from 'jsonwebtoken';
 
 const shurjopay = new sp();
 
@@ -84,6 +85,7 @@ const deleteOneFromDB = async (pmId: string): Promise<Payment | void> => {
 
 const verifyPayment = async (
   spOrderId: string,
+  userDecoded: JwtPayload,
 ): Promise<{
   verificationResponse: VerificationResponse;
   payment: Payment | null;
@@ -100,9 +102,17 @@ const verifyPayment = async (
       );
     }
     const verificationResponse = verificationResponseArray[0];
+
+    if (verificationResponse.email !== userDecoded.email) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You are not authorized to view this payment!',
+      );
+    }
+
     const userSubscriptionId = verificationResponse.customer_order_id;
     const userSubscription = await prisma.userSubscription.findUnique({
-      where: { id: userSubscriptionId },
+      where: { id: userSubscriptionId, paymentStatus: PaymentStatus.PENDING },
       include: {
         subscriptionPlan: true,
       },
@@ -111,7 +121,7 @@ const verifyPayment = async (
     if (!userSubscription) {
       throw new AppError(
         httpStatus.NOT_FOUND,
-        'User subscription not found for this payment',
+        'User subscription not found for this payment or already verified.',
       );
     }
 
@@ -139,7 +149,15 @@ const verifyPayment = async (
         },
       });
     }
-    return { verificationResponse, payment, userSubscription };
+    const userSubscriptionAfterSuccess = await handlePaymentSuccess(
+      userSubscriptionId,
+      verificationResponse,
+    );
+    return {
+      verificationResponse,
+      payment,
+      userSubscription: userSubscriptionAfterSuccess,
+    };
   } catch (error) {
     if (error instanceof AppError) {
       throw error;
