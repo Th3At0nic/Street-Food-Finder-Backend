@@ -4,6 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { PaymentServices } from './payment.service';
 
 const createOne = catchAsync(async (req, res) => {
+  console.log(req.body);
   const result = await PaymentServices.createOneIntoDB(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
