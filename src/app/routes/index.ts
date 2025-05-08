@@ -52,7 +52,7 @@ const moduleRoutes = [
     route: VotingRoutes,
   },
   {
-    path: `${apiPrefix}/payment`,
+    path: `${apiPrefix}/payments`,
     route: PaymentRoutes,
   },
 ];

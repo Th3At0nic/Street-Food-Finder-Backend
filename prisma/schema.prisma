@@ -93,7 +93,8 @@ model Payment {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // relation
-  user User @relation(fields: [userId], references: [id])
+  user             User               @relation(fields: [userId], references: [id])
+  userSubscription UserSubscription[]
 
   @@map("payments")
 }
@@ -116,17 +117,25 @@ enum SubscriptionStatus {
   IN_ACTIVE
 }
 
+enum PaymentStatus {
+  PAID
+  PENDING
+}
+
 model UserSubscription {
-  id         String   @id @default(uuid())
-  subPlanId  String   @map("sub_plan_id")
-  userId     String   @map("user_id")
-  expiringAt DateTime @map("expiring_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id            String        @id @default(uuid())
+  subPlanId     String        @map("sub_plan_id")
+  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
+  pmId          String?
+  userId        String        @map("user_id")
+  expiringAt    DateTime?     @map("expiring_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
   // relations
   user             User?             @relation(fields: [userId], references: [id])
   subscriptionPlan SubscriptionPlans @relation(fields: [subPlanId], references: [spId])
+  payment          Payment?          @relation(fields: [pmId], references: [pmId])
 
   @@map("user_subscriptions")
 }

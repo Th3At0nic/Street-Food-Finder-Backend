@@ -57,22 +57,27 @@ const updateOneSubscriptionPlan = catchAsync(async (req, res) => {
 });
 
 const subscribeUserToPlan = catchAsync(async (req, res) => {
-  // todo   const result = await SubscriptionServices.subscribeUserToPlan(req.body);
+  const result = await SubscriptionServices.subscribeUserToPlan(
+    req.params.subscriptionPlanId,
+    req.user,
+  );
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
     message: 'User subscribed to plan successfully',
-    // todo data: result,
+    data: result,
   });
 });
 
 const getUserSubscriptionStatus = catchAsync(async (req, res) => {
-  //todo const result = await SubscriptionServices.getUserSubscriptionStatus(req.params.userId);
+  const result = await SubscriptionServices.getUserSubscriptionStatus(
+    req.params.userId,
+  );
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'User subscription status retrieved successfully',
-    //todo data: result,
+    data: result,
   });
 });
 

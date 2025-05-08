@@ -2,9 +2,10 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { PaymentServices } from './payment.service';
+import { paymentUtils } from './payment.utils';
+import AppError from '../../error/AppError';
 
 const createOne = catchAsync(async (req, res) => {
-  console.log(req.body);
   const result = await PaymentServices.createOneIntoDB(req.body);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -54,10 +55,76 @@ const deleteOne = catchAsync(async (req, res) => {
   });
 });
 
+// Verify payment - manually check a payment status
+const verifyPayment = catchAsync(async (req, res) => {
+  const { spOrderId } = req.body;
+  const result = await PaymentServices.verifyPayment(spOrderId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Payment verification completed',
+    data: result,
+  });
+});
+
+// Handle webhook callback from Shurjopay
+const webhookCallback = catchAsync(async (req, res) => {
+  const { order_id: userSubscriptionId } = req.body;
+
+  if (!userSubscriptionId) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'User subscription ID is required',
+    );
+  }
+
+  try {
+    const verificationResponse =
+      await paymentUtils.verifyPaymentAsync(userSubscriptionId);
+
+    if (!verificationResponse || verificationResponse.length === 0) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'Failed to verify payment with Shurjopay',
+      );
+    }
+    if (paymentUtils.isPaymentSuccessful(verificationResponse[0])) {
+      const result = await PaymentServices.handlePaymentSuccess(
+        userSubscriptionId,
+        verificationResponse[0],
+      );
+
+      sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'Payment processed successfully',
+        data: result,
+      });
+    } else {
+      sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: false,
+        message: 'Payment verification failed',
+        data: verificationResponse,
+      });
+    }
+  } catch (error) {
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: false,
+      message: 'Payment webhook processing error',
+      data: { error: (error as Error).message },
+    });
+  }
+});
+
 export const PaymentControllers = {
   createOne,
   getAll,
   getOne,
   updateOne,
   deleteOne,
+  verifyPayment,
+  webhookCallback,
 };

@@ -7,7 +7,12 @@ import { UserRole } from '@prisma/client';
 
 const router = express.Router();
 
-router.post('/', auth(UserRole.USER), PaymentControllers.createOne);
+router.post(
+  '/',
+  auth(UserRole.USER),
+  validateRequest(PaymentValidations.createPaymentSchema),
+  PaymentControllers.createOne,
+);
 
 router.get('/', PaymentControllers.getAll);
 router.get('/:id', PaymentControllers.getOne);
@@ -19,6 +24,21 @@ router.patch(
   PaymentControllers.updateOne,
 );
 
-router.delete('/:id', PaymentControllers.deleteOne);
+router.delete('/:id', auth(UserRole.ADMIN), PaymentControllers.deleteOne);
+
+// Payment verification routes
+router.post(
+  '/verify',
+  auth(UserRole.USER, UserRole.PREMIUM_USER),
+  validateRequest(PaymentValidations.verifyPaymentSchema),
+  PaymentControllers.verifyPayment,
+);
+
+// Shurjopay webhook callback route - no auth required, called by Shurjopay
+router.post(
+  '/webhook',
+  validateRequest(PaymentValidations.webhookCallbackSchema),
+  PaymentControllers.webhookCallback,
+);
 
 export const PaymentRoutes = router;

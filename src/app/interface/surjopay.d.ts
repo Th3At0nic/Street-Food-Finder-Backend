@@ -20,7 +20,7 @@ declare module 'shurjopay' {
     token_valid_duration: number; // Duration in seconds
   }
 
-  interface PaymentRequest {
+  export interface PaymentRequest {
     prefix: string; // Provided by the shurjoPay team (Mandatory)
     token: string; // Alphanumeric token for communication with shurjoPay (Mandatory)
     return_url: string; // URL to redirect customer after payment processing (Mandatory)
@@ -74,6 +74,7 @@ declare module 'shurjopay' {
   export interface VerificationResponse {
     id: number; // Unique identification
     order_id: string; // shurjoPay payment ID used for verification
+    customer_order_id: string; // shurjoPay payment ID used for verification
     currency: string; // Currency in which the payment was made
     amount: number; // Amount paid by the customer
     payable_amount: number; // Total payable amount
@@ -99,7 +100,7 @@ declare module 'shurjopay' {
   }
 
   type Callback<T> = (response: T) => void;
-  type ErrorHandler = (error: any) => void;
+  export type ErrorHandler = (error: any) => void;
 
   class Shurjopay {
     data: { sp_token?: TokenDetails };

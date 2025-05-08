@@ -42,15 +42,5 @@ export const updateSubscriptionSchema = z.object({
   }),
 });
 
-/**
- * Schema for user subscribing to a plan (after payment success)
- */
-export const userSubscribeSchema = z.object({
-  body: z.object({
-    subscriptionId: z.string({ message: 'Invalid subscription ID format' }),
-  }),
-});
-
 // ✅ Export inferred types (optional, for cleaner controller usage)
 export type CreateSubscriptionInput = z.infer<typeof createSubscriptionSchema>;
-export type UserSubscribeInput = z.infer<typeof userSubscribeSchema>;
