@@ -12,6 +12,7 @@ import config from '../../config';
 import { paymentUtils } from './payment.utils';
 import AppError from '../../error/AppError';
 import httpStatus from 'http-status';
+import { Decimal } from '@prisma/client/runtime/library';
 
 const shurjopay = new sp();
 
@@ -84,22 +85,22 @@ const deleteOneFromDB = async (pmId: string): Promise<Payment | void> => {
 const verifyPayment = async (
   spOrderId: string,
 ): Promise<{
-  verificationResponse: VerificationResponse[];
+  verificationResponse: VerificationResponse;
   payment: Payment | null;
   userSubscription: UserSubscription | null;
 }> => {
   try {
     // Get verification response from shurjopay
-    const verificationResponse =
+    const verificationResponseArray =
       await paymentUtils.verifyPaymentAsync(spOrderId);
-
-    if (!verificationResponse || verificationResponse.length === 0) {
+    if (!verificationResponseArray || verificationResponseArray.length === 0) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
         'Failed to verify payment with Shurjopay',
       );
     }
-    const userSubscriptionId = verificationResponse[0].customer_order_id;
+    const verificationResponse = verificationResponseArray[0];
+    const userSubscriptionId = verificationResponse.customer_order_id;
     const userSubscription = await prisma.userSubscription.findUnique({
       where: { id: userSubscriptionId },
       include: {
@@ -117,8 +118,8 @@ const verifyPayment = async (
     let payment = null;
     const paymentData = {
       userId: userSubscription.userId,
-      paymentId: verificationResponse[0].order_id,
-      amount: verificationResponse[0].amount.toString(),
+      shurjoPayOrderId: verificationResponse.order_id,
+      amount: Decimal(verificationResponse.amount),
     };
 
     if (userSubscription.pmId) {
@@ -138,7 +139,6 @@ const verifyPayment = async (
         },
       });
     }
-
     return { verificationResponse, payment, userSubscription };
   } catch (error) {
     if (error instanceof AppError) {
@@ -177,7 +177,7 @@ const handlePaymentSuccess = async (
       payment = await tx.payment.create({
         data: {
           userId: userSubscription.userId,
-          paymentId: transactionData.order_id as string,
+          shurjoPayOrderId: transactionData.order_id as string,
           amount: userSubscription.subscriptionPlan.fee.toString(),
         },
       });

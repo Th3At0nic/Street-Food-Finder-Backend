@@ -16,11 +16,10 @@ const createOneIntoDB = async (payload: Votes, userDecoded: JwtPayload) => {
   if (!user) {
     throw new AppError(httpStatus.FORBIDDEN, 'You are not authorized');
   }
-  payload.voterId = user.id;
   await checkIfPostExist(payload.postId, PostStatus.APPROVED);
 
   const checkIfVoteExist = await prisma.votes.findFirst({
-    where: { vId: payload.vId, voterId: payload.voterId },
+    where: { vId: payload.vId, postId: payload.postId, voterId: user.id },
   });
   if (checkIfVoteExist) {
     if (checkIfVoteExist.vType === payload.vType) {
@@ -29,6 +28,7 @@ const createOneIntoDB = async (payload: Votes, userDecoded: JwtPayload) => {
       const updatedResult = await prisma.votes.update({
         where: {
           vId: checkIfVoteExist.vId,
+          voterId: user.id,
         },
         data: {
           vType: payload.vType,
@@ -38,7 +38,7 @@ const createOneIntoDB = async (payload: Votes, userDecoded: JwtPayload) => {
     }
   }
   const result = await prisma.votes.create({
-    data: payload,
+    data: { ...payload, voterId: user.id },
   });
   return result;
 };
