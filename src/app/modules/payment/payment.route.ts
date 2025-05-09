@@ -14,12 +14,20 @@ router.post(
   PaymentControllers.createOne,
 );
 
-router.get('/', PaymentControllers.getAll);
-router.get('/:id', PaymentControllers.getOne);
+router.get(
+  '/',
+  auth(UserRole.USER, UserRole.PREMIUM_USER, UserRole.ADMIN),
+  PaymentControllers.getAll,
+);
+router.get(
+  '/:id',
+  auth(UserRole.USER, UserRole.PREMIUM_USER, UserRole.ADMIN),
+  PaymentControllers.getOne,
+);
 
 router.patch(
   '/:id',
-  auth(UserRole.USER),
+  auth(UserRole.USER, UserRole.PREMIUM_USER),
   validateRequest(PaymentValidations.updatePaymentSchema),
   PaymentControllers.updateOne,
 );

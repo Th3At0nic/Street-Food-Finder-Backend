@@ -16,7 +16,7 @@ const createOne = catchAsync(async (req, res) => {
 });
 
 const getAll = catchAsync(async (req, res) => {
-  const result = await PaymentServices.getAllFromDB(req.query);
+  const result = await PaymentServices.getAllFromDB(req.query, req.user);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -26,7 +26,7 @@ const getAll = catchAsync(async (req, res) => {
 });
 
 const getOne = catchAsync(async (req, res) => {
-  const result = await PaymentServices.getOneFromDB(req.params.id);
+  const result = await PaymentServices.getOneFromDB(req.params.id, req.user);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
