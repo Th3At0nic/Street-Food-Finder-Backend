@@ -54,15 +54,25 @@ const getOne = catchAsync(async (req, res) => {
   });
 });
 
-const getAll = catchAsync(async (req, res) => {
-  const result = await CommentServices.getAllFromDB(
+const getAllComments = catchAsync(async (req, res) => {
+  const result = await CommentServices.getAllFromDB(req.query, req.user);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All comments retrieved successfully',
+    data: result,
+  });
+});
+
+const getAllCommentsOfPost = catchAsync(async (req, res) => {
+  const result = await CommentServices.getAllCommentsOfPostFromDB(
     req.query,
     req.params.postId,
   );
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'All comments retrieved successfully',
+    message: 'All comments of post retrieved successfully',
     data: result,
   });
 });
@@ -72,6 +82,7 @@ export const CommentControllers = {
   updateOne,
   deleteOne,
   getOne,
-  getAll,
+  getAllCommentsOfPost,
+  getAllComments,
 };
 export default CommentControllers;

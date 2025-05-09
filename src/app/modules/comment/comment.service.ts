@@ -1,4 +1,4 @@
-import { Comments, PrismaClient } from '@prisma/client';
+import { Comments, PrismaClient, UserRole } from '@prisma/client';
 import { QueryBuilder } from '../../builder/QueryBuilder';
 import { JwtPayload } from 'jsonwebtoken';
 import {
@@ -43,8 +43,10 @@ const createOneIntoDB = async (
   });
   return result;
 };
-
-const getAllFromDB = async (query: Record<string, unknown>, postId: string) => {
+const getAllCommentsOfPostFromDB = async (
+  query: Record<string, unknown>,
+  postId: string,
+) => {
   query.postId = postId;
   const postCategoryQueryBuilder = new QueryBuilder(
     prisma.comments,
@@ -55,6 +57,26 @@ const getAllFromDB = async (query: Record<string, unknown>, postId: string) => {
   const result = await postCategoryQueryBuilder
     .search()
     .filter()
+    .sort()
+    .paginate()
+    .execute();
+  return result;
+};
+
+const getAllFromDB = async (
+  query: Record<string, unknown>,
+  userDecoded: JwtPayload,
+) => {
+  const postCategoryQueryBuilder = new QueryBuilder(
+    prisma.comments,
+    query,
+    ['comment'],
+    'Comments',
+  );
+  console.log(userDecoded);
+  const result = await postCategoryQueryBuilder
+    .search()
+    .filter(userDecoded && userDecoded.role === UserRole.ADMIN)
     .sort()
     .paginate()
     .execute();
@@ -88,15 +110,23 @@ const getOneFromDB = async (commentId: string) => {
 
 const updateOneIntoDB = async (
   cId: string,
-  payload: Pick<Comments, 'comment'>,
+  payload: Pick<Comments, 'comment' | 'status' | 'commenterId'>,
   userDecoded: JwtPayload,
 ): Promise<Comments | null> => {
   const user = await getUserIfExistsByEmail(userDecoded.email);
+  if (user.role === UserRole.ADMIN && payload.comment) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      'You are not authorized to update comment text!',
+    );
+  }
+  if (user.role !== UserRole.ADMIN) {
+    payload.commenterId = user.id;
+  }
   await checkIfCommentExist(cId);
   const result = await prisma.comments.update({
     where: {
       cId,
-      commenterId: user.id,
     },
     data: payload,
   });
@@ -121,6 +151,7 @@ const deleteOneFromDB = async (
 export const CommentServices = {
   createOneIntoDB,
   getOneFromDB,
+  getAllCommentsOfPostFromDB,
   getAllFromDB,
   updateOneIntoDB,
   deleteOneFromDB,
