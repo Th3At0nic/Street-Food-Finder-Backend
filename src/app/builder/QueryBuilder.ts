@@ -50,7 +50,7 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
     return this;
   }
 
-  filter() {
+  filter(isAdmin?: boolean) {
     const excludeFields = [
       'searchTerm',
       'page',
@@ -62,7 +62,11 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
     excludeFields.forEach((field) => {
       delete filters[field];
     });
-
+    if (this.modelName === 'Comments' && !isAdmin) {
+      if (this.where) {
+        this.where!['status'] = CommentStatus.APPROVED;
+      }
+    }
     // Add remaining filters to where clause
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
@@ -174,6 +178,13 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
                     profilePhoto: true,
                   },
                 },
+              },
+            },
+            post: {
+              select: {
+                pId: true,
+                title: true,
+                description: true,
               },
             },
           },

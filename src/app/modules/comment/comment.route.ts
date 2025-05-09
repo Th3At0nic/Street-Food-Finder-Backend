@@ -15,13 +15,14 @@ router.post(
   CommentControllers.createOne,
 );
 
-router.get('/post/:postId', CommentControllers.getAll);
+router.get('/post/:postId', CommentControllers.getAllCommentsOfPost);
 
+router.get('/', auth(UserRole.ADMIN), CommentControllers.getAllComments);
 router.get('/:commentId', CommentControllers.getOne);
 
 router.patch(
   '/:commentId',
-  auth(UserRole.USER, UserRole.PREMIUM_USER),
+  auth(UserRole.USER, UserRole.PREMIUM_USER, UserRole.ADMIN),
   validateRequest(updateCommentSchema),
   CommentControllers.updateOne,
 );
