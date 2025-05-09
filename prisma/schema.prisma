@@ -166,6 +166,7 @@ model Post {
   priceRangeStart Decimal    @map("price_range_start")
   priceRangeEnd   Decimal    @map("price_range_end")
   location        String
+  rejectReason    String?    @map("reject_reason")
   approvedBy      String?    @map("approved_by")
   createdAt       DateTime   @default(now()) @map("created_at")
   updatedAt       DateTime   @updatedAt @map("updated_at")

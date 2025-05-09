@@ -29,11 +29,27 @@ const updatePostSchema = z.object({
     location: z.string().optional(),
   }),
 });
+enum ZPostStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
 
 const updatePostStatusSchema = z.object({
-  body: z.object({
-    status: PostStatus,
-  }),
+  body: z
+    .object({
+      status: z.nativeEnum(ZPostStatus),
+      rejectReason: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.status === ZPostStatus.REJECTED && !data.rejectReason) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'rejectReason is required when status is REJECTED',
+          path: ['rejectReason'],
+        });
+      }
+    }),
 });
 
 export const PostValidations = {

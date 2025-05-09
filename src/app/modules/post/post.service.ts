@@ -121,7 +121,7 @@ const updateOneIntoDB = async (
 
 const updatePostStatusIntoDB = async (
   pId: string,
-  payload: Pick<Post, 'status'>,
+  payload: Pick<Post, 'status' | 'rejectReason'>,
 ): Promise<Post | null> => {
   await checkIfPostExist(pId);
   const result = await prisma.post.update({
