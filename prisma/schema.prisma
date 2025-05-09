@@ -119,6 +119,11 @@ enum SubscriptionStatus {
   ACTIVE
   IN_ACTIVE
 }
+enum ComentActivationStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
 
 enum PaymentStatus {
   PAID
@@ -233,7 +238,7 @@ model Comments {
   comment     String
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-
+  isApproved  ComentActivationStatus @default(PENDING)
   // relations
   post      Post @relation(fields: [postId], references: [pId])
   commenter User @relation(name: "post_comments", fields: [commenterId], references: [id])
