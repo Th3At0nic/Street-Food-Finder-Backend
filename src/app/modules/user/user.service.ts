@@ -22,6 +22,7 @@ const createUserIntoDb = async (
   data: User & UserDetail,
 ) => {
   let uploadedImageUrl: string;
+  let isSocialLogin = false;
   if (file) {
     const imgName = `${data.email}-${Date.now()}`;
 
@@ -30,9 +31,13 @@ const createUserIntoDb = async (
       uploadedImageUrl = await uploadImgResult.secure_url;
     }
   } else if (data.profilePhoto) {
+    isSocialLogin = true;
     try {
       const user = await getUserIfExistsByEmail(data.email);
-      return loginUser({ email: user.email, password: user.password }, true);
+      return loginUser(
+        { email: user.email, password: user.password },
+        isSocialLogin,
+      );
       // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
     } catch (err) {}
     uploadedImageUrl = data.profilePhoto;
@@ -65,6 +70,12 @@ const createUserIntoDb = async (
 
     return createdUserDetails;
   });
+  if (isSocialLogin) {
+    return loginUser(
+      { email: result.user.email, password: result.user.password },
+      isSocialLogin,
+    );
+  }
   const {
     id,
     user: { email, role, status },

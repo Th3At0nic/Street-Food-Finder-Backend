@@ -5,6 +5,12 @@ export const createSubscriptionSchema = z.object({
     name: z
       .string({ required_error: 'Name is required' })
       .min(1, { message: 'Name is required' }),
+    description: z
+      .string({ required_error: 'Description is required' })
+      .min(1, { message: 'Description is required' })
+      .optional(),
+    features: z.array(z.string()).optional(),
+    isRecommended: z.boolean().default(false),
     fee: z.union([
       z
         .string({ required_error: 'Fee is required' })
@@ -26,6 +32,12 @@ export const createSubscriptionSchema = z.object({
 export const updateSubscriptionSchema = z.object({
   body: z.object({
     name: z.string().min(1, { message: 'Name is required' }).optional(),
+    description: z
+      .string({ required_error: 'Description is required' })
+      .min(1, { message: 'Description is required' })
+      .optional(),
+    features: z.array(z.string()).optional(),
+    isRecommended: z.boolean().optional(),
     fee: z
       .union([
         z.string().refine((val) => !isNaN(Number(val)), {
@@ -42,15 +54,5 @@ export const updateSubscriptionSchema = z.object({
   }),
 });
 
-/**
- * Schema for user subscribing to a plan (after payment success)
- */
-export const userSubscribeSchema = z.object({
-  body: z.object({
-    subscriptionId: z.string({ message: 'Invalid subscription ID format' }),
-  }),
-});
-
 // ✅ Export inferred types (optional, for cleaner controller usage)
 export type CreateSubscriptionInput = z.infer<typeof createSubscriptionSchema>;
-export type UserSubscribeInput = z.infer<typeof userSubscribeSchema>;

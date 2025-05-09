@@ -7,7 +7,6 @@ import { UserRole } from '@prisma/client';
 import {
   updateSubscriptionSchema,
   createSubscriptionSchema,
-  userSubscribeSchema,
 } from './subscriptionPlan.validation';
 
 const router = express.Router();
@@ -38,9 +37,8 @@ router.patch(
 
 // User subscribes to a plan
 router.post(
-  '/subscribe',
+  '/subscribe/:subscriptionPlanId',
   auth(UserRole.USER),
-  validateRequest(userSubscribeSchema),
   SubscriptionControllers.subscribeUserToPlan,
 );
 

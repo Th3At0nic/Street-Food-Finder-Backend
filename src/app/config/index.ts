@@ -9,6 +9,7 @@ export default {
   NODE_ENV: process.env.NODE_ENV,
   port: process.env.PORT,
   database_uri: process.env.DATABASE_URI,
+  base_url: process.env.BASE_URL || 'http://localhost:5000',
   jwt: {
     jwtAccessToken: process.env.JWT_SECRET,
     jwtExpiresIn: process.env.JWT_EXPIRATION,
@@ -33,6 +34,7 @@ export default {
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
   admin_password: process.env.ADMIN_PASSWORD,
+  sp_environment: process.env.SP_ENVIRONMENT,
   sp_end_point: process.env.SP_ENDPOINT,
   sp_user_name: process.env.SP_USERNAME,
   sp_password: process.env.SP_PASSWORD,

@@ -16,6 +16,9 @@ CREATE TYPE "vote_types" AS ENUM ('UPVOTE', 'DOWNVOTE');
 -- CreateEnum
 CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'IN_ACTIVE');
 
+-- CreateEnum
+CREATE TYPE "PaymentStatus" AS ENUM ('PAID', 'PENDING');
+
 -- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
@@ -46,7 +49,7 @@ CREATE TABLE "user_details" (
 CREATE TABLE "payments" (
     "pm_id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "payment_id" TEXT NOT NULL,
+    "shurjo_pay_order_id" TEXT NOT NULL,
     "amount" DECIMAL(65,30) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -71,8 +74,10 @@ CREATE TABLE "subscription_plans" (
 CREATE TABLE "user_subscriptions" (
     "id" TEXT NOT NULL,
     "sub_plan_id" TEXT NOT NULL,
+    "payment_status" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
+    "pmId" TEXT,
     "user_id" TEXT NOT NULL,
-    "expiring_at" TIMESTAMP(3) NOT NULL,
+    "expiring_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -162,9 +167,6 @@ CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 CREATE UNIQUE INDEX "user_details_user_id_key" ON "user_details"("user_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "payments_payment_id_key" ON "payments"("payment_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "votes_post_id_voter_id_key" ON "votes"("post_id", "voter_id");
 
 -- AddForeignKey
@@ -178,6 +180,9 @@ ALTER TABLE "user_subscriptions" ADD CONSTRAINT "user_subscriptions_user_id_fkey
 
 -- AddForeignKey
 ALTER TABLE "user_subscriptions" ADD CONSTRAINT "user_subscriptions_sub_plan_id_fkey" FOREIGN KEY ("sub_plan_id") REFERENCES "subscription_plans"("s_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "user_subscriptions" ADD CONSTRAINT "user_subscriptions_pmId_fkey" FOREIGN KEY ("pmId") REFERENCES "payments"("pm_id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "posts" ADD CONSTRAINT "posts_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "post_categories"("cat_id") ON DELETE RESTRICT ON UPDATE CASCADE;
