@@ -14,12 +14,18 @@ import httpStatus from 'http-status';
 import NotFoundError from '../../error/NotFoundError';
 import config from '../../config';
 import { paymentUtils } from '../payment/payment.utils';
+import { Decimal, InputJsonValue } from '@prisma/client/runtime/library';
 
 const prisma = new PrismaClient();
 
-const createOneIntoDB = async (
-  payload: Pick<SubscriptionPlans, 'name' | 'fee' | 'duration'>,
-): Promise<SubscriptionPlans> => {
+const createOneIntoDB = async (payload: {
+  name: string;
+  fee: Decimal;
+  description?: string | null;
+  features?: InputJsonValue;
+  isRecommended?: boolean;
+  duration?: number;
+}): Promise<SubscriptionPlans> => {
   const result = await prisma.subscriptionPlans.create({
     data: payload,
   });
@@ -163,7 +169,14 @@ const getOneFromDB = async (
 
 const updateOneIntoDB = async (
   spId: string,
-  payload: Pick<SubscriptionPlans, 'name' | 'fee' | 'duration' | 'spId'>,
+  payload: {
+    name?: string;
+    fee?: Decimal;
+    description?: string | null;
+    features?: InputJsonValue;
+    isRecommended?: boolean;
+    duration?: number;
+  },
 ): Promise<SubscriptionPlans | null> => {
   await checkIfSubscriptionPlanExist(spId);
   const result = await prisma.subscriptionPlans.update({

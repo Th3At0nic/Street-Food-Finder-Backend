@@ -102,6 +102,9 @@ model Payment {
 model SubscriptionPlans {
   spId              String             @id @default(uuid()) @map("s_id")
   name              String
+  description       String?
+  features          Json?
+  isRecommended     Boolean            @default(false) @map("is_recommended")
   fee               Decimal
   duration          Int                @default(30) // duration in days
   status            SubscriptionStatus @default(ACTIVE)
