@@ -43,10 +43,22 @@ const createOneIntoDB = async (payload: Payment): Promise<Payment> => {
   return result;
 };
 
-const getAllFromDB = async (query: Record<string, unknown>) => {
-  const postCategoryQueryBuilder = new QueryBuilder(prisma.payment, query, [
-    'name',
-  ]);
+const getAllFromDB = async (
+  query: Record<string, unknown>,
+  userDecoded: JwtPayload,
+) => {
+  if (
+    userDecoded.role === UserRole.USER ||
+    userDecoded.role === UserRole.PREMIUM_USER
+  ) {
+    query.userId = userDecoded.id;
+  }
+  const postCategoryQueryBuilder = new QueryBuilder(
+    prisma.payment,
+    query,
+    ['name'],
+    'Payments',
+  );
   const result = await postCategoryQueryBuilder
     .search()
     .filter()
@@ -56,12 +68,23 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
-const getOneFromDB = async (pmId: string): Promise<Payment | null> => {
+const getOneFromDB = async (
+  pmId: string,
+  userDecoded: JwtPayload,
+): Promise<Payment | null> => {
   await checkIfPaymentExist(pmId);
-  const result = await prisma.payment.findFirst({
+
+  if (
+    userDecoded.role === UserRole.USER ||
+    userDecoded.role === UserRole.PREMIUM_USER
+  ) {
+    return await prisma.payment.findFirst({
+      where: { pmId, userId: userDecoded.id },
+    });
+  }
+  return await prisma.payment.findFirst({
     where: { pmId },
   });
-  return result;
 };
 
 const updateOneIntoDB = async (

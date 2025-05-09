@@ -170,6 +170,24 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
           },
         },
       };
+    } else if (this.modelName === 'Payments') {
+      findObject = {
+        ...findObject,
+        ...{
+          include: {
+            userSubscription: {
+              select: {
+                paymentStatus: true,
+                subscriptionPlan: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
     }
     console.log(findObject);
     const data = await this.model.findMany(findObject);
