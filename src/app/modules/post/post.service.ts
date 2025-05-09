@@ -1,4 +1,4 @@
-import { Post, PrismaClient } from '@prisma/client';
+import { Post, PostStatus, PrismaClient } from '@prisma/client';
 import { QueryBuilder } from '../../builder/QueryBuilder';
 import { JwtPayload } from 'jsonwebtoken';
 import AppError from '../../error/AppError';
@@ -124,6 +124,9 @@ const updatePostStatusIntoDB = async (
   payload: Pick<Post, 'status' | 'rejectReason'>,
 ): Promise<Post | null> => {
   await checkIfPostExist(pId);
+  if (payload.status === PostStatus.APPROVED) {
+    payload.rejectReason = null;
+  }
   const result = await prisma.post.update({
     where: { pId },
     data: {
