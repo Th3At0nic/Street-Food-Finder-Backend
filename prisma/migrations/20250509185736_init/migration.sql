@@ -17,7 +17,7 @@ CREATE TYPE "vote_types" AS ENUM ('UPVOTE', 'DOWNVOTE');
 CREATE TYPE "SubscriptionStatus" AS ENUM ('ACTIVE', 'IN_ACTIVE');
 
 -- CreateEnum
-CREATE TYPE "ComentActivationStatus" AS ENUM ('APPROVED', 'PENDING', 'REJECTED');
+CREATE TYPE "CommentStatus" AS ENUM ('APPROVED', 'PENDING', 'REJECTED');
 
 -- CreateEnum
 CREATE TYPE "PaymentStatus" AS ENUM ('PAID', 'PENDING');
@@ -163,7 +163,7 @@ CREATE TABLE "comments" (
     "comment" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "isApproved" "ComentActivationStatus" NOT NULL DEFAULT 'PENDING',
+    "status" "CommentStatus" NOT NULL DEFAULT 'PENDING',
 
     CONSTRAINT "comments_pkey" PRIMARY KEY ("c_id")
 );

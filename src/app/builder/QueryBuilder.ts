@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Prisma } from '@prisma/client';
+import { CommentStatus, Prisma } from '@prisma/client';
 
 type TQueryParams = {
   searchTerm?: string;
@@ -114,11 +114,16 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
               },
             },
             comments: {
+              where: {
+                status: 'APPROVED',
+              },
               take: 3,
               orderBy: {
                 createdAt: 'desc',
               },
-              include: {
+              select: {
+                comment: true,
+                createdAt: true,
                 commenter: {
                   select: {
                     id: true,
@@ -141,7 +146,11 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
             },
             _count: {
               select: {
-                comments: true,
+                comments: {
+                  where: {
+                    status: CommentStatus.APPROVED,
+                  },
+                },
                 votes: true,
                 postRatings: true,
               },
@@ -189,7 +198,7 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
         },
       };
     }
-    console.log(findObject);
+    console.log({ findObject });
     const data = await this.model.findMany(findObject);
     if (this.modelName === 'Post') {
       data.forEach((post) => {
