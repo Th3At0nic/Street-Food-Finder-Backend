@@ -146,7 +146,7 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   const subscriptionQueryBuilder = new QueryBuilder(
     prisma.subscriptionPlans,
     query,
-    ['rating'],
+    ['name'],
   );
   const result = await subscriptionQueryBuilder
     .search()
