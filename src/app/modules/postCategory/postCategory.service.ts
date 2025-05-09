@@ -1,6 +1,8 @@
 import { PostCategory, PrismaClient } from '@prisma/client';
 import { QueryBuilder } from '../../builder/QueryBuilder';
 import NotFoundError from '../../error/NotFoundError';
+import AppError from '../../error/AppError';
+import httpStatus from 'http-status';
 
 const prisma = new PrismaClient();
 
@@ -60,9 +62,18 @@ const updateOneIntoDB = async (
 
 const deleteOneFromDB = async (catId: string): Promise<PostCategory | void> => {
   await checkIfPostCategoryExist(catId);
-  await prisma.postCategory.delete({
-    where: { catId },
-  });
+  try {
+    await prisma.postCategory.delete({
+      where: { catId },
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "You can't delete this category as other post are referencing it!",
+      );
+    }
+  }
 };
 
 export const PostCategoryServices = {
