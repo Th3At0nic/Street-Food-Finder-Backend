@@ -104,6 +104,7 @@ const getOneFromDB = async (pId: string): Promise<Post | null> => {
       comments: true,
       postImages: true,
       postRatings: true,
+      _count: true,
     },
   });
   return result;
