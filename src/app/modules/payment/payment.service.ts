@@ -56,7 +56,7 @@ const getAllFromDB = async (
   const postCategoryQueryBuilder = new QueryBuilder(
     prisma.payment,
     query,
-    ['name'],
+    ['amount', 'shurjoPayOrderId', 'pmId'],
     'Payments',
   );
   const result = await postCategoryQueryBuilder
