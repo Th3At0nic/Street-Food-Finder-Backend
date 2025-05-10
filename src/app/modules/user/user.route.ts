@@ -15,8 +15,6 @@ route.get(
   userController.getMyProfile,
 );
 
-route.get('/:id', userController.getSingleFromDB);
-
 // registration route
 route.post(
   '/',
@@ -34,6 +32,8 @@ route.patch(
   validateRequest(userValidation.updateStatus),
   userController.changeProfileStatus,
 );
+
+route.get('/:id', userController.getSingleFromDB);
 
 // route.patch(
 //   '/update-my-profile',
