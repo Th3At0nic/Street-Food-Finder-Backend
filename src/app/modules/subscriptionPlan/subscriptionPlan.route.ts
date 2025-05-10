@@ -45,7 +45,7 @@ router.post(
 // Get a user's subscription status
 router.get(
   '/status/:userId',
-  auth(UserRole.USER),
+  auth(UserRole.USER, UserRole.ADMIN, UserRole.PREMIUM_USER),
   SubscriptionControllers.getUserSubscriptionStatus,
 );
 
