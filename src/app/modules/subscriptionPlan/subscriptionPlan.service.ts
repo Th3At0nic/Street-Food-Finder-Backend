@@ -204,6 +204,7 @@ const getUserSubscriptionStatus = async (
   subscriptionExpiry: Date | null;
   isPremiumUser: boolean;
 }> => {
+  console.log('object');
   // Get the user's subscription status
   const activeSubscription = await prisma.userSubscription.findFirst({
     where: {
@@ -215,6 +216,18 @@ const getUserSubscriptionStatus = async (
     },
     include: {
       subscriptionPlan: true,
+      payment: true,
+      user: {
+        select: {
+          userDetails: {
+            select: {
+              name: true,
+              profilePhoto: true,
+              contactNumber: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       expiringAt: 'desc',
