@@ -63,7 +63,7 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   const postCategoryQueryBuilder = new QueryBuilder(
     prisma.post,
     query,
-    ['name'],
+    ['title'],
     'Post',
   );
   const result = await postCategoryQueryBuilder

@@ -73,7 +73,6 @@ const getAllFromDB = async (
     ['comment'],
     'Comments',
   );
-  console.log(userDecoded);
   const result = await postCategoryQueryBuilder
     .search()
     .filter(userDecoded && userDecoded.role === UserRole.ADMIN)

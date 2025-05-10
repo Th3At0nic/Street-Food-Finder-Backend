@@ -209,7 +209,7 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
         },
       };
     }
-    console.log({ findObject });
+
     const data = await this.model.findMany(findObject);
     if (this.modelName === 'Post') {
       data.forEach((post) => {
@@ -223,7 +223,6 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
       });
     }
 
-    console.log({ data });
     const total = await this.model.count({ where: this.where });
 
     return {
