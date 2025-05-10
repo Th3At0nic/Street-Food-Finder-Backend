@@ -102,6 +102,8 @@ const getOneFromDB = async (pId: string): Promise<Post | null> => {
       approvedByAdmin: true,
       votes: true,
       comments: true,
+      postImages: true,
+      postRatings: true,
     },
   });
   return result;
