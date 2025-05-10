@@ -210,6 +210,7 @@ export class QueryBuilder<T extends TPrismaModelDelegate> {
       };
     }
     console.log({ findObject });
+
     const data = await this.model.findMany(findObject);
     if (this.modelName === 'Post') {
       data.forEach((post) => {
