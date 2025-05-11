@@ -7,9 +7,16 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler';
 
 const app: Application = express();
 
+const corsOptions = {
+  origin: ['https://street-bite-frontend.vercel.app', 'http://localhost:3000'],
+  methods: '*',
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 // parsers
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 app.use('/', router);
