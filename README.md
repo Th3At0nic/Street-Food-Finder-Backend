@@ -4,7 +4,15 @@ A powerful backend API for **Street Food Finder**, a street food discovery and r
 It supports user authentication, content creation, premium subscriptions, payments, reviews, and admin moderation — built for scalability and modularity.
 
 📄 **View Full Documentation:** [Google Docs](https://docs.google.com/document/d/1Xat_GUQ4ImxRvMdViRr9GNuZjTzbq7yGKAgex9mYnrY/edit?usp=sharing)
-**Vedio Documentation:** 
+**Video Documentation:**
+
+---
+
+## 📃 Documentation
+
+- **Live Site:** [Street-Food Frontend](https://street-bite-frontend.vercel.app/)
+- **Backend Live API:** [Street-Food Server](https://street-food-finder-backend.vercel.app/)
+
 ---
 
 ## 🚀 Tech Stack
@@ -33,31 +41,33 @@ It supports user authentication, content creation, premium subscriptions, paymen
 ## 📦 Project Setup
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/Th3At0nic/Street-Food-Finder-Backend.git
 cd Street-Food-Finder
 
-Project Setup 
-1 Clone the Repository 
+Project Setup
+1 Clone the Repository
 https://github.com/Th3At0nic/Street-Food-Finder-Backend.git
 
 cd Street-Food-Finder
 
 2 Install Dependencies
-bun install 
+bun install
 
 3 Configure Environment
-Create a .env file in root or to see more checkout the .env.example file . 
+Create a .env file in root or to see more checkout the .env.example file .
 
 4.Database url
 PORT=5000;
 
 5 Run Prisma Migrations (Additional)
-For the starter file you dont have to follow this 
+For the starter file you dont have to follow this
 bun prisma:migrate
-bun prisma:generate 
+bun prisma:generate
 
-6 Start the server 
+6 Start the server
 bun dev
 
 
+```
