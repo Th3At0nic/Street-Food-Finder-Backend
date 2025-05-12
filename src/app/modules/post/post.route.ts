@@ -65,6 +65,7 @@ router.post(
 // );
 
 router.get('/', PostControllers.getAll);
+router.get('/trending-posts', PostControllers.getAll);
 router.get('/:id', PostControllers.getOne);
 
 router.put(

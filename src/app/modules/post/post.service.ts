@@ -75,6 +75,67 @@ const getAllFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
+const getTrendingPostsFromDB = async () => {
+  const topRated = await prisma.postRatings.groupBy({
+    by: ['postId'],
+    _avg: {
+      rating: true,
+    },
+    orderBy: {
+      _avg: {
+        rating: 'desc',
+      },
+    },
+    take: 3,
+  });
+
+  const topPostIds = topRated.map((r) => r.postId);
+
+  const trendingPosts = await prisma.post.findMany({
+    where: {
+      pId: {
+        in: topPostIds,
+      },
+    },
+    include: {
+      author: {
+        select: {
+          id: true,
+          role: true,
+          status: true,
+          userDetails: {
+            select: {
+              name: true,
+              profilePhoto: true,
+            },
+          },
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          catId: true,
+        },
+      },
+      approvedByAdmin: true,
+      votes: true,
+      comments: true,
+      postImages: true,
+      postRatings: true,
+      _count: true,
+    },
+  });
+
+  const postMap = Object.fromEntries(
+    trendingPosts.map((post) => [post.pId, post]),
+  );
+  const orderedTrendingPosts = topPostIds
+    .map((id) => postMap[id])
+    .filter(Boolean);
+
+  return orderedTrendingPosts;
+};
+
 const getOneFromDB = async (pId: string): Promise<Post | null> => {
   await checkIfPostExist(pId);
   const result = await prisma.post.findFirst({
@@ -153,4 +214,5 @@ export const PostServices = {
   updateOneIntoDB,
   updatePostStatusIntoDB,
   deleteOneFromDB,
+  getTrendingPostsFromDB,
 };

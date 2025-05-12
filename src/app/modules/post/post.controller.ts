@@ -24,6 +24,16 @@ const getAll = catchAsync(async (req, res) => {
   });
 });
 
+const getTrendingPosts = catchAsync(async (req, res) => {
+  const result = await PostServices.getTrendingPostsFromDB();
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Trending posts retrieved successfully',
+    data: result,
+  });
+});
+
 const getOne = catchAsync(async (req, res) => {
   const result = await PostServices.getOneFromDB(req.params.id);
   sendResponse(res, {
@@ -74,4 +84,5 @@ export const PostControllers = {
   updateOne,
   updatePostStatus,
   deleteOne,
+  getTrendingPosts,
 };
