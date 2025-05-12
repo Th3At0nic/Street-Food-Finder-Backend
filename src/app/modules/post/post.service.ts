@@ -1,4 +1,4 @@
-import { Post, PostStatus, PrismaClient } from '@prisma/client';
+import { CommentStatus, Post, PostStatus, PrismaClient } from '@prisma/client';
 import { QueryBuilder } from '../../builder/QueryBuilder';
 import { JwtPayload } from 'jsonwebtoken';
 import AppError from '../../error/AppError';
@@ -97,7 +97,10 @@ const getTrendingPostsFromDB = async () => {
         in: topPostIds,
       },
     },
+
     include: {
+      category: true,
+      postImages: true,
       author: {
         select: {
           id: true,
@@ -111,23 +114,39 @@ const getTrendingPostsFromDB = async () => {
           },
         },
       },
-      category: {
+      postRatings: {
         select: {
-          name: true,
-          catId: true,
+          rating: true,
         },
       },
-      approvedByAdmin: true,
-      votes: true,
-      comments: true,
-      postImages: true,
-      postRatings: true,
-      _count: true,
+      _count: {
+        select: {
+          comments: {
+            where: {
+              status: CommentStatus.APPROVED,
+            },
+          },
+          votes: true,
+          postRatings: true,
+        },
+      },
     },
+  });
+  const trendingPostsWithRating = trendingPosts.map((post) => {
+    const ratings = post.postRatings?.map((r) => r.rating) || [];
+    const avg =
+      ratings.length > 0
+        ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+        : null;
+
+    return {
+      ...post,
+      averageRating: avg,
+    };
   });
 
   const postMap = Object.fromEntries(
-    trendingPosts.map((post) => [post.pId, post]),
+    trendingPostsWithRating.map((post) => [post.pId, post]),
   );
   const orderedTrendingPosts = topPostIds
     .map((id) => postMap[id])
